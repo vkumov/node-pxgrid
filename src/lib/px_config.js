@@ -1,0 +1,179 @@
+"use strict";
+
+import winston from 'winston';
+const {
+    format
+} = winston;
+
+import {
+    transports
+} from './utils/logging';
+
+export const PX_INET4 = 1;
+export const PX_INET46 = 2;
+export const PX_INET64 = 3;
+export const PX_INET6 = 4;
+
+function matchRule(str, rule) {
+    return new RegExp("^" + rule.split("*").join(".*") + "$").test(str);
+}
+
+export class PxConfig {
+    constructor(options = {}) {
+        this.nodename = typeof options.nodename !== 'undefined' ? options.nodename : '';
+        this.username = typeof options.username !== 'undefined' ? options.username : this.nodename;
+        this.password = typeof options.password !== 'undefined' ? options.password : '';
+        this.description = typeof options.description !== 'undefined' ? options.description : '';
+        this.rejectUnauthorized = typeof options.rejectUnauthorized !== 'undefined' ? options.rejectUnauthorized : true;
+
+        this.dns = options.dns || [];
+        this.inetFamily = typeof options.inetFamily !== 'undefined' ? options.inetFamily : PX_INET46;
+
+        options.hosts = (typeof options.hosts !== 'undefined' && Array.isArray(options.hosts)) ? options.hosts : [];
+        options.hosts.forEach(h => this.addHost(h));
+
+        this._clientcert = typeof options.clientcert !== 'undefined' ? options.clientcert : '';
+        this._clientkey = typeof options.clientkey !== 'undefined' ? options.clientkey : '';
+        this._clientkeypassword = typeof options.clientkeypassword !== 'undefined' ? options.clientkeypassword : '';
+
+        this.debugs = (this.debugs || process.env.DEBUG || '').split(',');
+        this.loggers = [];
+
+        this.logger = this.getLogger('pxgrid:config');
+    }
+
+    get dns() {
+        return this._dns;
+    }
+
+    set dns(new_dns) {
+        if (new_dns && !Array.isArray(new_dns)) {
+            throw new TypeError('Must be an array of new DNS servers');
+        }
+        this._dns = dns;
+    }
+
+    get inetFamily() {
+        return this._inetFamily;
+    }
+
+    set inetFamily(nv) {
+        if (![PX_INET4, PX_INET46, PX_INET64, PX_INET6].includes(nv)) {
+            throw new PxConfigError('WRONG_INET_FAMILY', "Wrong internet family");
+        }
+        this._inetFamily = nv;
+    }
+
+    get hostsLength() {
+        return this._hosts.length;
+    }
+
+    getHostName = (idx = 0) => {
+        return this._hosts[idx].host;
+    }
+
+    getHostId = (name, zeroIfNotFound = true) => {
+        name = name.toLowerCase();
+        let r = this._hosts.findIndex(h => h.host === name);
+        if (r < 0) {
+            this.logger.debug(`${name} not found in hosts`);
+        }
+        return (r < 0 && zeroIfNotFound) ? 0 : r;
+    }
+
+    forEachHost = (cb) => {
+        this._hosts.forEach((h, idx) => {
+            cb(h, idx);
+        })
+    }
+
+    addHost = (options, checkIfAdded = true) => {
+        if (!options) {
+            throw new PxConfigError('NO_OPTIONS', 'No options for new host');
+        }
+        if (!options.hasOwnProperty('host')) {
+            throw new PxConfigError('NO_OPTIONS_HOST', 'No host name provided');
+        }
+        if (!options.hasOwnProperty('ca')) {
+            throw new PxConfigError('NO_OPTIONS_CA', 'No ca data for new host provided');
+        }
+
+        if (checkIfAdded && this._hosts.findIndex(h => h.host === options.host) >= 0) {
+            return;
+        }
+
+        this._hosts.push({
+            host: options.host.toLowerCase(),
+            ca: options.ca,
+        });
+    }
+
+    setClientcert = (cert, key, keyPassword) => {
+        this._clientcert = cert;
+        this._clientkey = key;
+        this._clientkeypassword = keyPassword;
+    }
+
+    getHttpsOptions = (hostIdx = 0) => {
+        return {
+            ca: this._hosts[hostIdx].ca,
+            cert: this._clientcert,
+            key: this._clientkey,
+            passphrase: this._clientkeypassword,
+            rejectUnauthorized: this.rejectUnauthorized,
+            servername: this._hosts[hostIdx].host,
+        }
+    }
+
+    _isDebug = (component) => {
+        let idx = this.debugs.findIndex(d => {
+            return matchRule(component, d);
+        });
+        return idx >= 0;
+    }
+
+    _addLogger = (component) => {
+        winston.loggers.add(component, {
+            format: format.combine(
+                format.label({
+                    label: component
+                }),
+                format.json()
+            ),
+            level: this._isDebug(component) ? 'debug' : 'info',
+            transports: transports,
+        });
+
+        this.loggers.push({
+            component: component,
+            logger: winston.loggers.get(component),
+        });
+
+        return this.loggers[this.loggers - 1].logger;
+    }
+
+    getLogger = (component) => {
+        let result = this.loggers.findIndex(l => {
+            return l.component === component;
+        });
+        if (result >= 0) {
+            return this.loggers[result].logger;
+        }
+        return this._addLogger(component);
+    }
+}
+
+export class PxConfigError extends Error {
+    /**
+     * Internal service error.
+     */
+    constructor(code, ...params) {
+        super(...params);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, PxConfigError);
+        }
+
+        this.code = code
+    }
+}
