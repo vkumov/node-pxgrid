@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _url = _interopRequireDefault(require("url"));
+var _url = require("url");
 
 var _net = _interopRequireDefault(require("net"));
 
@@ -60,6 +60,7 @@ var PxConsumer = function PxConsumer(config) {
     regeneratorRuntime.mark(function _callee(url, payload) {
       var authz,
           headers,
+          o,
           ip,
           passwd,
           b64,
@@ -71,45 +72,49 @@ var PxConsumer = function PxConsumer(config) {
             case 0:
               authz = _args.length > 2 && _args[2] !== undefined ? _args[2] : true;
 
+              if (typeof payload !== 'string') {
+                payload = JSON.stringify(payload);
+              }
+
               _this.logger.debug("About to send REST request");
 
               _this.logger.debug("pxGrid url = ".concat(url));
 
-              payload = JSON.stringify(payload);
-
-              _this.logger.debug("  request = ".concat(payload));
+              _this.logger.debug("--- Request = ".concat(payload));
 
               headers = {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
               };
-              _context.next = 8;
-              return _this.getNodeIp(url);
+              o = new _url.URL(url);
+              o.port = o.port || 8910;
+              _context.next = 10;
+              return _this.getNodeIp(o);
 
-            case 8:
+            case 10:
               ip = _context.sent;
 
               if (ip) {
-                _context.next = 11;
+                _context.next = 13;
                 break;
               }
 
               throw new PxConsumerError("NO_NODES", "Could not find any reachable address");
 
-            case 11:
+            case 13:
               if (authz || typeof authz === 'string') {
                 passwd = typeof authz === 'string' ? authz : _this.config.password;
                 b64 = new Buffer("".concat(_this.config.username, ":").concat(passwd), 'ascii').toString('base64');
                 headers.Authorization = "Basic ".concat(b64);
               }
 
-              _context.next = 14;
-              return utils.postRequest(url, ip, payload, headers, _this.config.getHttpsOptions());
+              _context.next = 16;
+              return utils.postRequest(url, ip, payload, headers, _this.sslOptions(o));
 
-            case 14:
+            case 16:
               response = _context.sent;
 
-              _this.logger.debug('Got response');
+              _this.logger.debug('--- Response');
 
               _this.logger.debug("".concat(response.status, " ").concat(response.statusText));
 
@@ -127,7 +132,7 @@ var PxConsumer = function PxConsumer(config) {
 
               return _context.abrupt("return", new PxRestResponse(response.status, response.data));
 
-            case 21:
+            case 23:
             case "end":
               return _context.stop();
           }
@@ -140,40 +145,97 @@ var PxConsumer = function PxConsumer(config) {
     };
   }());
 
-  _defineProperty(this, "sendControlRest", function (url_suffix, payload) {
-    var authz = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-    var url = "https://".concat(_this.config.getHostName(_this.host_id), ":8910/pxgrid/control/").concat(url_suffix);
-    return _this.sendRestRequest(url, payload, authz);
-  });
+  _defineProperty(this, "sendControlRest",
+  /*#__PURE__*/
+  function () {
+    var _ref2 = _asyncToGenerator(
+    /*#__PURE__*/
+    regeneratorRuntime.mark(function _callee2(url_suffix, payload) {
+      var authz,
+          i,
+          _host,
+          url,
+          _args2 = arguments;
+
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              authz = _args2.length > 2 && _args2[2] !== undefined ? _args2[2] : true;
+              i = 0;
+
+            case 2:
+              if (!(i < _this.config.hostsLength)) {
+                _context2.next = 18;
+                break;
+              }
+
+              _context2.prev = 3;
+              _host = _this.config.getHostName(i);
+              url = "https://".concat(_host, ":8910/pxgrid/control/").concat(url_suffix);
+              _context2.next = 8;
+              return _this.sendRestRequest(url, payload, authz);
+
+            case 8:
+              return _context2.abrupt("return", _context2.sent);
+
+            case 11:
+              _context2.prev = 11;
+              _context2.t0 = _context2["catch"](3);
+
+              _this.logger.warn("Control REST to ".concat(host, " failed, trying next"));
+
+              return _context2.abrupt("continue", 15);
+
+            case 15:
+              i++;
+              _context2.next = 2;
+              break;
+
+            case 18:
+              throw new PxConsumerError('CONTROL_REST_FAILED', "None of hosts responded to ".concat(url_suffix));
+
+            case 19:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2, this, [[3, 11]]);
+    }));
+
+    return function (_x3, _x4) {
+      return _ref2.apply(this, arguments);
+    };
+  }());
 
   _defineProperty(this, "accountCreate",
   /*#__PURE__*/
   _asyncToGenerator(
   /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee2() {
+  regeneratorRuntime.mark(function _callee3() {
     var updateConfig,
         payload,
         response,
-        _args2 = arguments;
-    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        _args3 = arguments;
+    return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
-        switch (_context2.prev = _context2.next) {
+        switch (_context3.prev = _context3.next) {
           case 0:
-            updateConfig = _args2.length > 0 && _args2[0] !== undefined ? _args2[0] : true;
+            updateConfig = _args3.length > 0 && _args3[0] !== undefined ? _args3[0] : true;
 
             _this.logger.debug("Doing AccountCreate");
 
             payload = {
               'nodeName': _this.config.nodename
             };
-            _context2.next = 5;
+            _context3.next = 5;
             return _this.sendControlRest('AccountCreate', payload, false);
 
           case 5:
-            response = _context2.sent;
+            response = _context3.sent;
 
             if (!(response.code == 503)) {
-              _context2.next = 8;
+              _context3.next = 8;
               break;
             }
 
@@ -181,7 +243,7 @@ var PxConsumer = function PxConsumer(config) {
 
           case 8:
             if (!(response.code == 409)) {
-              _context2.next = 10;
+              _context3.next = 10;
               break;
             }
 
@@ -194,25 +256,25 @@ var PxConsumer = function PxConsumer(config) {
               _this.config.username = response.content['userName'];
             }
 
-            return _context2.abrupt("return", response);
+            return _context3.abrupt("return", response);
 
           case 12:
           case "end":
-            return _context2.stop();
+            return _context3.stop();
         }
       }
-    }, _callee2, this);
+    }, _callee3, this);
   })));
 
   _defineProperty(this, "accountActivate",
   /*#__PURE__*/
   _asyncToGenerator(
   /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee3() {
+  regeneratorRuntime.mark(function _callee4() {
     var payload, response;
-    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+    return regeneratorRuntime.wrap(function _callee4$(_context4) {
       while (1) {
-        switch (_context3.prev = _context3.next) {
+        switch (_context4.prev = _context4.next) {
           case 0:
             _this.logger.debug("Doing AccountActivate");
 
@@ -222,47 +284,99 @@ var PxConsumer = function PxConsumer(config) {
               payload['description'] = _this.config.description;
             }
 
-            _context3.next = 5;
+            _context4.next = 5;
             return _this.sendControlRest('AccountActivate', payload);
 
           case 5:
-            response = _context3.sent;
+            response = _context4.sent;
 
             if (!(response.code == 401)) {
-              _context3.next = 8;
+              _context4.next = 8;
               break;
             }
 
             throw new PxConsumerError('ACTIVATE_FAIL_UNAUTHORIZED', "Got 401 Unauthorized, looks like such account wasn't created or incorrect password");
 
           case 8:
-            return _context3.abrupt("return", response);
+            return _context4.abrupt("return", response);
 
           case 9:
           case "end":
-            return _context3.stop();
+            return _context4.stop();
         }
       }
-    }, _callee3, this);
+    }, _callee4, this);
   })));
 
-  _defineProperty(this, "serviceLookup", function (serviceName) {
-    _this.logger.debug("Doing ServiceLookup");
+  _defineProperty(this, "serviceLookup",
+  /*#__PURE__*/
+  function () {
+    var _ref5 = _asyncToGenerator(
+    /*#__PURE__*/
+    regeneratorRuntime.mark(function _callee5(serviceName) {
+      var payload;
+      return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              _this.logger.debug("Doing ServiceLookup");
 
-    var payload = {
-      'name': serviceName
+              payload = {
+                'name': serviceName
+              };
+              _context5.next = 4;
+              return _this.sendControlRest('ServiceLookup', payload);
+
+            case 4:
+              return _context5.abrupt("return", _context5.sent);
+
+            case 5:
+            case "end":
+              return _context5.stop();
+          }
+        }
+      }, _callee5, this);
+    }));
+
+    return function (_x5) {
+      return _ref5.apply(this, arguments);
     };
-    return _this.sendControlRest('ServiceLookup', payload);
-  });
+  }());
 
-  _defineProperty(this, "accessSecret", function (peerNodeName) {
-    _this.logger.debug("Doing AccessSecret");
+  _defineProperty(this, "accessSecret",
+  /*#__PURE__*/
+  function () {
+    var _ref6 = _asyncToGenerator(
+    /*#__PURE__*/
+    regeneratorRuntime.mark(function _callee6(peerNodeName) {
+      var payload;
+      return regeneratorRuntime.wrap(function _callee6$(_context6) {
+        while (1) {
+          switch (_context6.prev = _context6.next) {
+            case 0:
+              _this.logger.debug("Doing AccessSecret");
 
-    var payload = {
-      peerNodeName: peerNodeName
+              payload = {
+                peerNodeName: peerNodeName
+              };
+              _context6.next = 4;
+              return _this.sendControlRest('AccessSecret', payload);
+
+            case 4:
+              return _context6.abrupt("return", _context6.sent);
+
+            case 5:
+            case "end":
+              return _context6.stop();
+          }
+        }
+      }, _callee6, this);
+    }));
+
+    return function (_x6) {
+      return _ref6.apply(this, arguments);
     };
-    return _this.sendControlRest('AccessSecret', payload);
-  });
+  }());
 
   _defineProperty(this, "getLogger", function (name) {
     return _this.config.getLogger(name);
@@ -271,271 +385,291 @@ var PxConsumer = function PxConsumer(config) {
   _defineProperty(this, "getNodeIp",
   /*#__PURE__*/
   function () {
-    var _ref4 = _asyncToGenerator(
+    var _ref7 = _asyncToGenerator(
     /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee4(url) {
-      var o, port, fams, ips, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, f;
+    regeneratorRuntime.mark(function _callee7(url) {
+      var fams, ips, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, f;
 
-      return regeneratorRuntime.wrap(function _callee4$(_context4) {
+      return regeneratorRuntime.wrap(function _callee7$(_context7) {
         while (1) {
-          switch (_context4.prev = _context4.next) {
+          switch (_context7.prev = _context7.next) {
             case 0:
               /**
                * Retrieves IP from URL based on configuration (DNS servers, Inet Family preferences)
                */
-              o = new _url.default(url);
-              port = o.port || 8910;
+              if (typeof 'url' === 'string') {
+                url = new _url.URL(url);
+                url.port = url.port || 8910;
+              }
 
-              if (!_net.default.isIP(o.hostname)) {
-                _context4.next = 6;
+              if (!_net.default.isIP(url.hostname)) {
+                _context7.next = 5;
                 break;
               }
 
-              _context4.next = 5;
+              _context7.next = 4;
               return _this.getFirstOpen([ip], port);
 
-            case 5:
-              return _context4.abrupt("return", _context4.sent);
+            case 4:
+              return _context7.abrupt("return", _context7.sent);
 
-            case 6:
-              _context4.t0 = _this.config.inetFamily;
-              _context4.next = _context4.t0 === _px_config.PxConfig.PX_INET4 ? 9 : _context4.t0 === _px_config.PxConfig.PX_INET46 ? 11 : _context4.t0 === _px_config.PxConfig.PX_INET64 ? 13 : 15;
+            case 5:
+              _context7.t0 = _this.config.inetFamily;
+              _context7.next = _context7.t0 === _px_config.PxConfig.PX_INET4 ? 8 : _context7.t0 === _px_config.PxConfig.PX_INET46 ? 10 : _context7.t0 === _px_config.PxConfig.PX_INET64 ? 12 : 14;
               break;
 
-            case 9:
+            case 8:
               fams = ['AAAA'];
-              return _context4.abrupt("break", 17);
+              return _context7.abrupt("break", 16);
 
-            case 11:
+            case 10:
               fams = ['A', 'AAAA'];
-              return _context4.abrupt("break", 17);
+              return _context7.abrupt("break", 16);
 
-            case 13:
+            case 12:
               fams = ['AAAA', 'A'];
-              return _context4.abrupt("break", 17);
+              return _context7.abrupt("break", 16);
 
-            case 15:
+            case 14:
               fams = ['A'];
-              return _context4.abrupt("break", 17);
+              return _context7.abrupt("break", 16);
 
-            case 17:
+            case 16:
               ips = [];
               _iteratorNormalCompletion = true;
               _didIteratorError = false;
               _iteratorError = undefined;
-              _context4.prev = 21;
+              _context7.prev = 20;
               _iterator = fams[Symbol.iterator]();
 
-            case 23:
+            case 22:
               if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-                _context4.next = 33;
+                _context7.next = 32;
                 break;
               }
 
               f = _step.value;
-              _context4.next = 27;
-              return _this.dnsLookup(o.hostname, f);
+              _context7.next = 26;
+              return _this.dnsLookup(url.hostname, f);
 
-            case 27:
-              ips = _context4.sent;
+            case 26:
+              ips = _context7.sent;
 
               if (!ips.length) {
-                _context4.next = 30;
+                _context7.next = 29;
                 break;
               }
 
-              return _context4.abrupt("break", 33);
+              return _context7.abrupt("break", 32);
 
-            case 30:
+            case 29:
               _iteratorNormalCompletion = true;
-              _context4.next = 23;
+              _context7.next = 22;
               break;
 
-            case 33:
-              _context4.next = 39;
+            case 32:
+              _context7.next = 38;
               break;
 
-            case 35:
-              _context4.prev = 35;
-              _context4.t1 = _context4["catch"](21);
+            case 34:
+              _context7.prev = 34;
+              _context7.t1 = _context7["catch"](20);
               _didIteratorError = true;
-              _iteratorError = _context4.t1;
+              _iteratorError = _context7.t1;
 
-            case 39:
-              _context4.prev = 39;
-              _context4.prev = 40;
+            case 38:
+              _context7.prev = 38;
+              _context7.prev = 39;
 
               if (!_iteratorNormalCompletion && _iterator.return != null) {
                 _iterator.return();
               }
 
-            case 42:
-              _context4.prev = 42;
+            case 41:
+              _context7.prev = 41;
 
               if (!_didIteratorError) {
-                _context4.next = 45;
+                _context7.next = 44;
                 break;
               }
 
               throw _iteratorError;
 
+            case 44:
+              return _context7.finish(41);
+
             case 45:
-              return _context4.finish(42);
+              return _context7.finish(38);
 
             case 46:
-              return _context4.finish(39);
+              _context7.next = 48;
+              return _this.getFirstOpen(ips, url.port);
 
-            case 47:
-              _context4.next = 49;
-              return _this.getFirstOpen(ips, port);
+            case 48:
+              return _context7.abrupt("return", _context7.sent);
 
             case 49:
-              return _context4.abrupt("return", _context4.sent);
-
-            case 50:
             case "end":
-              return _context4.stop();
+              return _context7.stop();
           }
         }
-      }, _callee4, this, [[21, 35, 39, 47], [40,, 42, 46]]);
+      }, _callee7, this, [[20, 34, 38, 46], [39,, 41, 45]]);
     }));
 
-    return function (_x3) {
-      return _ref4.apply(this, arguments);
+    return function (_x7) {
+      return _ref7.apply(this, arguments);
     };
   }());
 
   _defineProperty(this, "dnsLookup",
   /*#__PURE__*/
   function () {
-    var _ref5 = _asyncToGenerator(
+    var _ref8 = _asyncToGenerator(
     /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee5(hostname, recordtype) {
-      return regeneratorRuntime.wrap(function _callee5$(_context5) {
+    regeneratorRuntime.mark(function _callee8(hostname, recordtype) {
+      return regeneratorRuntime.wrap(function _callee8$(_context8) {
         while (1) {
-          switch (_context5.prev = _context5.next) {
+          switch (_context8.prev = _context8.next) {
             case 0:
-              _context5.prev = 0;
-              _context5.next = 3;
+              _context8.prev = 0;
+              _context8.next = 3;
               return utils.dnsLookup(hostname, _this.config.dns, recordtype);
 
             case 3:
-              return _context5.abrupt("return", _context5.sent);
+              return _context8.abrupt("return", _context8.sent);
 
             case 6:
-              _context5.prev = 6;
-              _context5.t0 = _context5["catch"](0);
+              _context8.prev = 6;
+              _context8.t0 = _context8["catch"](0);
 
-              _this.logger.debug(_context5.t0.message);
+              _this.logger.debug(_context8.t0.message);
 
-              return _context5.abrupt("return", []);
+              return _context8.abrupt("return", []);
 
             case 10:
             case "end":
-              return _context5.stop();
+              return _context8.stop();
           }
         }
-      }, _callee5, this, [[0, 6]]);
+      }, _callee8, this, [[0, 6]]);
     }));
 
-    return function (_x4, _x5) {
-      return _ref5.apply(this, arguments);
+    return function (_x8, _x9) {
+      return _ref8.apply(this, arguments);
     };
   }());
 
   _defineProperty(this, "getFirstOpen",
   /*#__PURE__*/
   function () {
-    var _ref6 = _asyncToGenerator(
+    var _ref9 = _asyncToGenerator(
     /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee6(ips, port) {
+    regeneratorRuntime.mark(function _callee9(ips, port) {
       var _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, _ip;
 
-      return regeneratorRuntime.wrap(function _callee6$(_context6) {
+      return regeneratorRuntime.wrap(function _callee9$(_context9) {
         while (1) {
-          switch (_context6.prev = _context6.next) {
+          switch (_context9.prev = _context9.next) {
             case 0:
               _iteratorNormalCompletion2 = true;
               _didIteratorError2 = false;
               _iteratorError2 = undefined;
-              _context6.prev = 3;
+              _context9.prev = 3;
               _iterator2 = ips[Symbol.iterator]();
 
             case 5:
               if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
-                _context6.next = 15;
+                _context9.next = 15;
                 break;
               }
 
               _ip = _step2.value;
-              _context6.next = 9;
+              _context9.next = 9;
               return utils.isPortOpen(_ip, port);
 
             case 9:
-              if (!_context6.sent) {
-                _context6.next = 11;
+              if (!_context9.sent) {
+                _context9.next = 11;
                 break;
               }
 
-              return _context6.abrupt("return", _ip);
+              return _context9.abrupt("return", _ip);
 
             case 11:
               _this.logger.debug("".concat(_ip, ":").concat(port, " is not reacheable"));
 
             case 12:
               _iteratorNormalCompletion2 = true;
-              _context6.next = 5;
+              _context9.next = 5;
               break;
 
             case 15:
-              _context6.next = 21;
+              _context9.next = 21;
               break;
 
             case 17:
-              _context6.prev = 17;
-              _context6.t0 = _context6["catch"](3);
+              _context9.prev = 17;
+              _context9.t0 = _context9["catch"](3);
               _didIteratorError2 = true;
-              _iteratorError2 = _context6.t0;
+              _iteratorError2 = _context9.t0;
 
             case 21:
-              _context6.prev = 21;
-              _context6.prev = 22;
+              _context9.prev = 21;
+              _context9.prev = 22;
 
               if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
                 _iterator2.return();
               }
 
             case 24:
-              _context6.prev = 24;
+              _context9.prev = 24;
 
               if (!_didIteratorError2) {
-                _context6.next = 27;
+                _context9.next = 27;
                 break;
               }
 
               throw _iteratorError2;
 
             case 27:
-              return _context6.finish(24);
+              return _context9.finish(24);
 
             case 28:
-              return _context6.finish(21);
+              return _context9.finish(21);
 
             case 29:
-              return _context6.abrupt("return", undefined);
+              return _context9.abrupt("return", undefined);
 
             case 30:
             case "end":
-              return _context6.stop();
+              return _context9.stop();
           }
         }
-      }, _callee6, this, [[3, 17, 21, 29], [22,, 24, 28]]);
+      }, _callee9, this, [[3, 17, 21, 29], [22,, 24, 28]]);
     }));
 
-    return function (_x6, _x7) {
-      return _ref6.apply(this, arguments);
+    return function (_x10, _x11) {
+      return _ref9.apply(this, arguments);
     };
   }());
+
+  _defineProperty(this, "sslOptions", function (host) {
+    if (typeof host === 'string') {
+      host = new _url.URL(host);
+    }
+
+    return _this.config.getHttpsOptions(_this.config.getHostId(host.hostname));
+  });
+
+  _defineProperty(this, "credentials", function () {
+    var _this$config = _this.config,
+        username = _this$config.username,
+        password = _this$config.password;
+    return {
+      username: username,
+      password: password
+    };
+  });
 
   if (!config) {
     throw new PxConsumerError('NO_CONFIG', 'No config provided');
@@ -544,7 +678,6 @@ var PxConsumer = function PxConsumer(config) {
   this.config = config;
   this.logger = config.getLogger('pxgrid:consumer');
   this.services = new _services_container.default(this);
-  this.host_id = 0;
 };
 
 exports.default = PxConsumer;

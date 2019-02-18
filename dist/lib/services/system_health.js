@@ -70,7 +70,7 @@ function (_PxService) {
     });
 
     _this.service = "com.cisco.ise.system";
-    _this.logger = owner.get_logger('pxgrid:service:system_health');
+    _this.logger = owner.getLogger('pxgrid:service:system_health');
     return _this;
   }
 

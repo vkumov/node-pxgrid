@@ -33,7 +33,7 @@ function (_PxService) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Srv).call(this, owner));
     _this.service = "com.cisco.endpoint.asset";
-    _this.logger = owner.get_logger('pxgrid:service:endpoint_asset');
+    _this.logger = owner.getLogger('pxgrid:service:endpoint_asset');
     return _this;
   }
 

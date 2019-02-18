@@ -1,6 +1,6 @@
 "use strict";
 
-import winston from 'winston';
+const winston = require('winston');
 const {
     format
 } = winston;
@@ -121,7 +121,7 @@ export class PxConfig {
             key: this._clientkey,
             passphrase: this._clientkeypassword,
             rejectUnauthorized: this.rejectUnauthorized,
-            servername: this._hosts[hostIdx].host,
+            // servername: this._hosts[hostIdx].host,
         }
     }
 
@@ -149,7 +149,7 @@ export class PxConfig {
             logger: winston.loggers.get(component),
         });
 
-        return this.loggers[this.loggers - 1].logger;
+        return this.loggers[this.loggers.length - 1].logger;
     }
 
     getLogger = (component) => {

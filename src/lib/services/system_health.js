@@ -4,7 +4,7 @@ export default class Srv extends PxService {
     constructor(owner) {
         super(owner);
         this.service = "com.cisco.ise.system";
-        this.logger = owner.get_logger('pxgrid:service:system_health');
+        this.logger = owner.getLogger('pxgrid:service:system_health');
     }
 
     getHealths = (node_name, start_timestamp, node = -1) => {

@@ -2,7 +2,7 @@
     "name": "pxgrid-core",
     "version": "0.1.0",
     "private": true,
-    "main": "index.js",
+    "main": "dist/index.js",
     "scripts": {
         "start": "nodemon --exec babel-node src/index.js",
         "build": "babel src --out-dir dist"

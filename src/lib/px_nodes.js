@@ -90,4 +90,8 @@ export class PxNodes {
     _delByName = (name) => {
         return this.nodes.splice(this._nodeIdByName(name), 1);
     }
+
+    [Symbol.iterator]() {
+        return this.nodes[Symbol.iterator]();
+    }
 }

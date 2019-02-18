@@ -1,6 +1,6 @@
 "use strict";
 
-import URL from 'url';
+import { URL } from 'url';
 import NET from 'net';
 import * as utils from './utils/net';
 import PxServices from './services/services_container';
@@ -49,7 +49,7 @@ export default class PxConsumer {
             ip,
             payload,
             headers,
-            this.config.getHttpsOptions(this.config.getHostId(o.hostname))
+            this.sslOptions(o)
         );
 
         this.logger.debug('--- Response');
@@ -199,6 +199,21 @@ export default class PxConsumer {
             this.logger.debug(`${ip}:${port} is not reacheable`);
         }
         return undefined;
+    }
+
+    sslOptions = (host) => {
+        if (typeof host === 'string') {
+            host = new URL(host);
+        }
+
+        return this.config.getHttpsOptions(this.config.getHostId(host.hostname));
+    }
+
+    credentials = () => {
+        let { username, password } = this.config;
+        return {
+            username, password
+        };
     }
 }
 

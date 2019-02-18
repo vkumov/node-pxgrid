@@ -1,13 +1,15 @@
 "use strict";
 
+import EventEmitter from 'events';
 import { PxNodes } from '../px_nodes';
 
 const SERVICE_NOT_INIT = 'UNINITIALIZED';
 
-export class PxService {
+export class PxService extends EventEmitter {
     constructor(owner) {
+        super();
         this.owner = owner;
-        this.nodes = new PxNodes.PxNodes();
+        this.nodes = new PxNodes();
         this.logger = null;
         this._service = SERVICE_NOT_INIT;
         this._initialized = false;
@@ -52,7 +54,9 @@ export class PxService {
         if (this.logger) { this.logger.debug(`About to make ${call} call`); }
 
         await this.checkNodes();
-        return await this._goThroughNodes(call, payload, node);
+        let r = await this._goThroughNodes(call, payload, node);
+        this.emit(`${call}Success`, r);
+        return r;
     }
 
     lookup = async () => {
@@ -101,16 +105,16 @@ export class PxService {
             throw new ServiceError('NO_NODES', `No nodes for the service ${this.service}`);
         }
 
-        this.nodes.forEach(node => {
+        for (node of this.nodes) {
             try {
                 await this.secret(node);
             } catch (e) {
                 if (this.logger) { this.logger.warn(`Error while communicating with ${n.node_name}: ${e.message}`); }
                 r.fail.push(n.node_name);
-                return;
+                continue;
             }
             r.success.push(n.node_name);
-        });
+        }
 
         return r;
     }
@@ -130,6 +134,7 @@ export class PxService {
         if (this.nodes.isEmpty()) {
             throw new ServiceError("NO_NODES", `No nodes for the service ${this.service}`);
         }
+        return true;
     }
 
     _goThroughNodes = async (call, payload, node = -1) => {
@@ -156,9 +161,11 @@ export class PxService {
                 }
                 let r = await this.owner.sendRestRequest(`${n.properties.restBaseUrl}/${call}`, payload, n.secret);
                 if (r.code >= 200 && r.code < 300) {
+                    this.emit('restCallSuccess', call, n, r);
                     return r;
                 }
                 if (this.logger) { this.logger.debug(`Got not 2** response for a call to ${n.node_name}:\n${r.code}: ${r.content}`); }
+                this.emit(`${call}Error`, n, r);
             } catch (e) {
                 if (this.logger) { this.logger.warn(`Error while communicating with ${n.node_name}: ${e.message}`); }
             }
@@ -177,6 +184,6 @@ export class ServiceError extends Error {
             Error.captureStackTrace(this, ServiceError);
         }
 
-        self.code = code
+        this.code = code
     }
 }

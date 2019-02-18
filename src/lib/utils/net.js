@@ -2,7 +2,7 @@
 
 import NET from 'net';
 import DNS from 'dns';
-import URL from 'url';
+import { URL } from 'url';
 import axios from 'axios';
 import https from 'https';
 import winston from 'winston';

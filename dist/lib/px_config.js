@@ -5,11 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.PxConfigError = exports.PxConfig = exports.PX_INET6 = exports.PX_INET64 = exports.PX_INET46 = exports.PX_INET4 = void 0;
 
-var _winston = _interopRequireDefault(require("winston"));
-
 var _logging = require("./utils/logging");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -39,7 +35,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var format = _winston.default.format;
+var winston = require('winston');
+
+var format = winston.format;
 var PX_INET4 = 1;
 exports.PX_INET4 = PX_INET4;
 var PX_INET46 = 2;
@@ -56,39 +54,81 @@ function matchRule(str, rule) {
 var PxConfig =
 /*#__PURE__*/
 function () {
-  function PxConfig(options) {
+  function PxConfig() {
     var _this = this;
+
+    var _options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
     _classCallCheck(this, PxConfig);
 
     _defineProperty(this, "getHostName", function () {
       var idx = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-      return _this._hosts[idx];
+      return _this._hosts[idx].host;
     });
 
-    _defineProperty(this, "addHostName", function (host) {
+    _defineProperty(this, "getHostId", function (name) {
+      var zeroIfNotFound = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+      name = name.toLowerCase();
+
+      var r = _this._hosts.findIndex(function (h) {
+        return h.host === name;
+      });
+
+      if (r < 0) {
+        _this.logger.debug("".concat(name, " not found in hosts"));
+      }
+
+      return r < 0 && zeroIfNotFound ? 0 : r;
+    });
+
+    _defineProperty(this, "forEachHost", function (cb) {
+      _this._hosts.forEach(function (h, idx) {
+        cb(h, idx);
+      });
+    });
+
+    _defineProperty(this, "addHost", function (options) {
       var checkIfAdded = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
-      if (checkIfAdded && _this._hosts.includes(host)) {
+      if (!options) {
+        throw new PxConfigError('NO_OPTIONS', 'No options for new host');
+      }
+
+      if (!options.hasOwnProperty('host')) {
+        throw new PxConfigError('NO_OPTIONS_HOST', 'No host name provided');
+      }
+
+      if (!options.hasOwnProperty('ca')) {
+        throw new PxConfigError('NO_OPTIONS_CA', 'No ca data for new host provided');
+      }
+
+      if (checkIfAdded && _this._hosts.findIndex(function (h) {
+        return h.host === options.host;
+      }) >= 0) {
         return;
       }
 
-      _this._hosts.push(host);
+      _this._hosts.push({
+        host: options.host.toLowerCase(),
+        ca: options.ca
+      });
     });
 
-    _defineProperty(this, "setClientcert", function (cert, key, key_password) {
+    _defineProperty(this, "setClientcert", function (cert, key, keyPassword) {
       _this._clientcert = cert;
       _this._clientkey = key;
-      _this._clientkeypassword = key_password;
+      _this._clientkeypassword = keyPassword;
     });
 
     _defineProperty(this, "getHttpsOptions", function () {
+      var hostIdx = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       return {
-        ca: _this.ca,
+        ca: _this._hosts[hostIdx].ca,
         cert: _this._clientcert,
         key: _this._clientkey,
         passphrase: _this._clientkeypassword,
-        rejectUnauthorized: _this.rejectUnauthorized
+        rejectUnauthorized: _this.rejectUnauthorized // servername: this._hosts[hostIdx].host,
+
       };
     });
 
@@ -101,7 +141,7 @@ function () {
     });
 
     _defineProperty(this, "_addLogger", function (component) {
-      _winston.default.loggers.add(component, {
+      winston.loggers.add(component, {
         format: format.combine(format.label({
           label: component
         }), format.json()),
@@ -111,10 +151,10 @@ function () {
 
       _this.loggers.push({
         component: component,
-        logger: _winston.default.loggers.get(component)
+        logger: winston.loggers.get(component)
       });
 
-      return _this.loggers[_this.loggers - 1].logger;
+      return _this.loggers[_this.loggers.length - 1].logger;
     });
 
     _defineProperty(this, "getLogger", function (component) {
@@ -129,20 +169,25 @@ function () {
       return _this._addLogger(component);
     });
 
-    this.nodename = typeof options.nodename !== 'undefined' ? options.nodename : '';
-    this.username = typeof options.username !== 'undefined' ? options.username : this.nodename;
-    this.password = typeof options.password !== 'undefined' ? options.password : '';
-    this.description = typeof options.description !== 'undefined' ? options.description : '';
-    this.rejectUnauthorized = typeof options.rejectUnauthorized !== 'undefined' ? options.rejectUnauthorized : true;
-    this.ca = options.servercert;
-    this.dns = options.dns || [];
-    this.inetFamily = typeof options.inetFamily !== 'undefined' ? options.inetFamily : PX_INET46;
-    this._hosts = typeof options.hosts !== 'undefined' ? options.hosts : [];
-    this._clientcert = typeof options.clientcert !== 'undefined' ? options.clientcert : '';
-    this._clientkey = typeof options.clientkey !== 'undefined' ? options.clientkey : '';
-    this._clientkeypassword = typeof options.clientkeypassword !== 'undefined' ? options.clientkeypassword : '';
+    this.nodename = typeof _options.nodename !== 'undefined' ? _options.nodename : '';
+    this.username = typeof _options.username !== 'undefined' ? _options.username : this.nodename;
+    this.password = typeof _options.password !== 'undefined' ? _options.password : '';
+    this.description = typeof _options.description !== 'undefined' ? _options.description : '';
+    this.rejectUnauthorized = typeof _options.rejectUnauthorized !== 'undefined' ? _options.rejectUnauthorized : true;
+    this.dns = _options.dns || [];
+    this.inetFamily = typeof _options.inetFamily !== 'undefined' ? _options.inetFamily : PX_INET46;
+    _options.hosts = typeof _options.hosts !== 'undefined' && Array.isArray(_options.hosts) ? _options.hosts : [];
+
+    _options.hosts.forEach(function (h) {
+      return _this.addHost(h);
+    });
+
+    this._clientcert = typeof _options.clientcert !== 'undefined' ? _options.clientcert : '';
+    this._clientkey = typeof _options.clientkey !== 'undefined' ? _options.clientkey : '';
+    this._clientkeypassword = typeof _options.clientkeypassword !== 'undefined' ? _options.clientkeypassword : '';
     this.debugs = (this.debugs || process.env.DEBUG || '').split(',');
     this.loggers = [];
+    this.logger = this.getLogger('pxgrid:config');
   }
 
   _createClass(PxConfig, [{
@@ -168,6 +213,11 @@ function () {
       }
 
       this._inetFamily = nv;
+    }
+  }, {
+    key: "hostsLength",
+    get: function get() {
+      return this._hosts.length;
     }
   }]);
 

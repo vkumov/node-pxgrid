@@ -9,7 +9,7 @@ var _net = _interopRequireDefault(require("net"));
 
 var _dns = _interopRequireDefault(require("dns"));
 
-var _url = _interopRequireDefault(require("url"));
+var _url = require("url");
 
 var _axios = _interopRequireDefault(require("axios"));
 
@@ -51,7 +51,7 @@ function () {
               payload = JSON.stringify(payload);
             }
 
-            o = new _url.default(url);
+            o = new _url.URL(url);
             headers.Host = o.hostname;
             o.hostname = ip;
             o.port = o.port || 8910;

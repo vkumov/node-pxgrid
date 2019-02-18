@@ -5,15 +5,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ServiceError = exports.PxService = void 0;
 
+var _events = _interopRequireDefault(require("events"));
+
 var _px_nodes = require("../px_nodes");
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _wrapNativeSuper(Class) { var _cache = typeof Map === "function" ? new Map() : undefined; _wrapNativeSuper = function _wrapNativeSuper(Class) { if (Class === null || !_isNativeFunction(Class)) return Class; if (typeof Class !== "function") { throw new TypeError("Super expression must either be null or a function"); } if (typeof _cache !== "undefined") { if (_cache.has(Class)) return _cache.get(Class); _cache.set(Class, Wrapper); } function Wrapper() { return _construct(Class, arguments, _getPrototypeOf(this).constructor); } Wrapper.prototype = Object.create(Class.prototype, { constructor: { value: Wrapper, enumerable: false, writable: true, configurable: true } }); return _setPrototypeOf(Wrapper, Class); }; return _wrapNativeSuper(Class); }
 
@@ -23,9 +21,9 @@ function _construct(Parent, args, Class) { if (isNativeReflectConstruct()) { _co
 
 function _isNativeFunction(fn) { return Function.toString.call(fn).indexOf("[native code]") !== -1; }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -33,19 +31,33 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var SERVICE_NOT_INIT = 'UNINITIALIZED';
 
 var PxService =
 /*#__PURE__*/
-function () {
+function (_EventEmitter) {
+  _inherits(PxService, _EventEmitter);
+
   function PxService(owner) {
-    var _this = this;
+    var _this;
 
     _classCallCheck(this, PxService);
 
-    _defineProperty(this, "initialized", function () {
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(PxService).call(this));
+
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "initialized", function () {
       /**
        * Checks if service was initialized. Throws an exception if not.
        * 
@@ -58,184 +70,462 @@ function () {
       return true;
     });
 
-    _defineProperty(this, "_generalCall", function (call, payload) {
-      var node = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "_generalCall",
+    /*#__PURE__*/
+    function () {
+      var _ref = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee(call, payload) {
+        var node,
+            r,
+            _args = arguments;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                node = _args.length > 2 && _args[2] !== undefined ? _args[2] : -1;
 
-      /**
-       * Wrapper for every REST call. Checks nodes and executes the call.
-       * 
-       * @param {String} call      the REST call to perform.
-       * @param {Any}    payload   payload if needed.
-       * @param {Number} [node=-1] node idx if needed, or -1 to get from first available.
-       * 
-       * @return response of _goThroughNodes.
-       */
-      _this.initialized();
+                /**
+                 * Wrapper for every REST call. Checks nodes and executes the call.
+                 * 
+                 * @param {String} call      the REST call to perform.
+                 * @param {Any}    payload   payload if needed.
+                 * @param {Number} [node=-1] node idx if needed, or -1 to get from first available.
+                 * 
+                 * @return response of _goThroughNodes.
+                 */
+                _this.initialized();
 
-      if (_this.logger) {
-        _this.logger.debug("About to make ".concat(call, " call"));
-      }
+                if (_this.logger) {
+                  _this.logger.debug("About to make ".concat(call, " call"));
+                }
 
-      _this.checkNodes();
+                _context.next = 5;
+                return _this.checkNodes();
 
-      return _this._goThroughNodes(call, payload, node);
-    });
+              case 5:
+                _context.next = 7;
+                return _this._goThroughNodes(call, payload, node);
 
-    _defineProperty(this, "lookup", function () {
-      /**
-       * Service Lookup of the service.
-       */
-      _this.initialized();
+              case 7:
+                r = _context.sent;
 
-      var r = _this.owner.service_lookup(_this.service);
+                _this.emit("".concat(call, "Success"), r);
 
-      if (r.code != 200) {
-        throw new ServiceError('BAD_RESPONSE', "Got unexpected response from host: ".concat(r.code, ": ").concat(r.content));
-      }
+                return _context.abrupt("return", r);
 
-      _this.nodes.populate(r.content.services);
-    });
+              case 10:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
 
-    _defineProperty(this, "secret", function (node) {
-      /**
-       * Update Access Secret for one node.
-       * 
-       * @param {Object} node node for which access secret should be updated.
-       */
-      _this.initialized();
-
-      var r = _this.owner.access_secret(node.node_name);
-
-      if (r.code != 200) {
-        throw new ServiceError('BAD_RESPONSE', "Got unexpected response from host: ".concat(r.code, ": ").concat(r.content));
-      }
-
-      node.secret = r.content.secret;
-    });
-
-    _defineProperty(this, "updateSecrets", function () {
-      /**
-       * Update Access Secrets for all nodes.
-       * 
-       * @return {Object} successfull and failed nodes
-       */
-      _this.initialized();
-
-      var r = {
-        success: [],
-        fail: []
+      return function (_x, _x2) {
+        return _ref.apply(this, arguments);
       };
+    }());
 
-      if (_this.nodes.isEmpty()) {
-        throw new ServiceError('NO_NODES', "No nodes for the service ".concat(_this.service));
-      }
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "lookup",
+    /*#__PURE__*/
+    _asyncToGenerator(
+    /*#__PURE__*/
+    regeneratorRuntime.mark(function _callee2() {
+      var r;
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              /**
+               * Service Lookup of the service.
+               */
+              _this.initialized();
 
-      _this.nodes.forEach(function (node) {
-        try {
-          _this.secret(node);
-        } catch (e) {
-          if (_this.logger) {
-            _this.logger.debug("Error while communicating with ".concat(n.node_name, ": ").concat(e.message));
-          }
+              _context2.next = 3;
+              return _this.owner.serviceLookup(_this.service);
 
-          r.fail.push(n.node_name);
-          return;
-        }
+            case 3:
+              r = _context2.sent;
 
-        r.success.push(n.node_name);
-      });
+              if (!(r.code != 200)) {
+                _context2.next = 6;
+                break;
+              }
 
-      return r;
-    });
+              throw new ServiceError('BAD_RESPONSE', "Got unexpected response from host: ".concat(r.code, ": ").concat(r.content));
 
-    _defineProperty(this, "checkNodes", function () {
-      var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+            case 6:
+              _this.nodes.populate(r.content.services);
 
-      /**
-       * Perform Service Lookup if needed, raise error if no nodes returned.
-       * 
-       * @param {Boolean} force perform lookup even if it was performed already.
-       */
-      _this.initialized();
-
-      if (_this.nodes.isEmpty() || force) {
-        _this.lookup();
-      }
-
-      if (_this.nodes.isEmpty()) {
-        throw new ServiceError("NO_NODES", "No nodes for the service ".concat(_this.service));
-      }
-    });
-
-    _defineProperty(this, "_goThroughNodes", function (call, payload) {
-      var node = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
-
-      /**
-       * Perform a REST call, go through all nodes, return first successful.
-       * 
-       * @param {String} call      the call itself
-       * @param {Any}    payload   payload data
-       * @param {Number} [node=-1] if call should go to one specific node - it is its index
-       * 
-       * @return result of REST call
-       */
-      _this.initialized();
-
-      var ns = _this.nodes.node(node);
-
-      if (!Array.isArray(ns)) {
-        ns = [ns];
-      }
-
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = ns[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var _n = _step.value;
-
-          try {
-            if (!_n.secret) {
-              _this.secret(_n);
-            }
-
-            var r = _this.owner.sendRestRequest("".concat(_n.properties.restBaseUrl, "/").concat(call), payload, _n.secret);
-
-            if (r.code >= 200 && r.code < 300) {
-              return r;
-            }
-
-            if (_this.logger) {
-              _this.logger.debug("Got not 2** response for a call to ".concat(_n.node_name, ":\n").concat(r.code, ": ").concat(r.content));
-            }
-          } catch (e) {
-            if (_this.logger) {
-              _this.logger.debug("Error while communicating with ".concat(_n.node_name, ": ").concat(e.message));
-            }
+            case 7:
+            case "end":
+              return _context2.stop();
           }
         }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return != null) {
-            _iterator.return();
+      }, _callee2, this);
+    })));
+
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "secret",
+    /*#__PURE__*/
+    function () {
+      var _ref3 = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee3(node) {
+        var r;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                /**
+                 * Update Access Secret for one node.
+                 * 
+                 * @param {Object} node node for which access secret should be updated.
+                 */
+                _this.initialized();
+
+                _context3.next = 3;
+                return _this.owner.accessSecret(node.node_name);
+
+              case 3:
+                r = _context3.sent;
+
+                if (!(r.code != 200)) {
+                  _context3.next = 6;
+                  break;
+                }
+
+                throw new ServiceError('BAD_RESPONSE', "Got unexpected response from host: ".concat(r.code, ": ").concat(r.content));
+
+              case 6:
+                node.secret = r.content.secret;
+
+              case 7:
+              case "end":
+                return _context3.stop();
+            }
           }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
+        }, _callee3, this);
+      }));
+
+      return function (_x3) {
+        return _ref3.apply(this, arguments);
+      };
+    }());
+
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "updateSecrets",
+    /*#__PURE__*/
+    _asyncToGenerator(
+    /*#__PURE__*/
+    regeneratorRuntime.mark(function _callee4() {
+      var r, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step;
+
+      return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              /**
+               * Update Access Secrets for all nodes.
+               * 
+               * @return {Object} successfull and failed nodes
+               */
+              _this.initialized();
+
+              r = {
+                success: [],
+                fail: []
+              };
+
+              if (!_this.nodes.isEmpty()) {
+                _context4.next = 4;
+                break;
+              }
+
+              throw new ServiceError('NO_NODES', "No nodes for the service ".concat(_this.service));
+
+            case 4:
+              _iteratorNormalCompletion = true;
+              _didIteratorError = false;
+              _iteratorError = undefined;
+              _context4.prev = 7;
+              _iterator = _this.nodes[Symbol.iterator]();
+
+            case 9:
+              if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                _context4.next = 25;
+                break;
+              }
+
+              node = _step.value;
+              _context4.prev = 11;
+              _context4.next = 14;
+              return _this.secret(node);
+
+            case 14:
+              _context4.next = 21;
+              break;
+
+            case 16:
+              _context4.prev = 16;
+              _context4.t0 = _context4["catch"](11);
+
+              if (_this.logger) {
+                _this.logger.warn("Error while communicating with ".concat(n.node_name, ": ").concat(_context4.t0.message));
+              }
+
+              r.fail.push(n.node_name);
+              return _context4.abrupt("continue", 22);
+
+            case 21:
+              r.success.push(n.node_name);
+
+            case 22:
+              _iteratorNormalCompletion = true;
+              _context4.next = 9;
+              break;
+
+            case 25:
+              _context4.next = 31;
+              break;
+
+            case 27:
+              _context4.prev = 27;
+              _context4.t1 = _context4["catch"](7);
+              _didIteratorError = true;
+              _iteratorError = _context4.t1;
+
+            case 31:
+              _context4.prev = 31;
+              _context4.prev = 32;
+
+              if (!_iteratorNormalCompletion && _iterator.return != null) {
+                _iterator.return();
+              }
+
+            case 34:
+              _context4.prev = 34;
+
+              if (!_didIteratorError) {
+                _context4.next = 37;
+                break;
+              }
+
+              throw _iteratorError;
+
+            case 37:
+              return _context4.finish(34);
+
+            case 38:
+              return _context4.finish(31);
+
+            case 39:
+              return _context4.abrupt("return", r);
+
+            case 40:
+            case "end":
+              return _context4.stop();
           }
         }
-      }
-    });
+      }, _callee4, this, [[7, 27, 31, 39], [11, 16], [32,, 34, 38]]);
+    })));
 
-    this.owner = owner;
-    this.nodes = new _px_nodes.PxNodes.PxNodes();
-    this.logger = null;
-    this._service = SERVICE_NOT_INIT;
-    this._initialized = false;
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "checkNodes",
+    /*#__PURE__*/
+    _asyncToGenerator(
+    /*#__PURE__*/
+    regeneratorRuntime.mark(function _callee5() {
+      var force,
+          _args5 = arguments;
+      return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              force = _args5.length > 0 && _args5[0] !== undefined ? _args5[0] : false;
+
+              /**
+               * Perform Service Lookup if needed, raise error if no nodes returned.
+               * 
+               * @param {Boolean} force perform lookup even if it was performed already.
+               */
+              _this.initialized();
+
+              if (!(_this.nodes.isEmpty() || force)) {
+                _context5.next = 5;
+                break;
+              }
+
+              _context5.next = 5;
+              return _this.lookup();
+
+            case 5:
+              if (!_this.nodes.isEmpty()) {
+                _context5.next = 7;
+                break;
+              }
+
+              throw new ServiceError("NO_NODES", "No nodes for the service ".concat(_this.service));
+
+            case 7:
+              return _context5.abrupt("return", true);
+
+            case 8:
+            case "end":
+              return _context5.stop();
+          }
+        }
+      }, _callee5, this);
+    })));
+
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "_goThroughNodes",
+    /*#__PURE__*/
+    function () {
+      var _ref6 = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee6(call, payload) {
+        var node,
+            ns,
+            _iteratorNormalCompletion2,
+            _didIteratorError2,
+            _iteratorError2,
+            _iterator2,
+            _step2,
+            _n,
+            r,
+            _args6 = arguments;
+
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                node = _args6.length > 2 && _args6[2] !== undefined ? _args6[2] : -1;
+
+                /**
+                 * Perform a REST call, go through all nodes, return first successful.
+                 * 
+                 * @param {String} call      the call itself
+                 * @param {Any}    payload   payload data
+                 * @param {Number} [node=-1] if call should go to one specific node - it is its index
+                 * 
+                 * @return result of REST call
+                 */
+                _this.initialized();
+
+                ns = _this.nodes.node(node);
+
+                if (!Array.isArray(ns)) {
+                  ns = [ns];
+                }
+
+                _iteratorNormalCompletion2 = true;
+                _didIteratorError2 = false;
+                _iteratorError2 = undefined;
+                _context6.prev = 7;
+                _iterator2 = ns[Symbol.iterator]();
+
+              case 9:
+                if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
+                  _context6.next = 29;
+                  break;
+                }
+
+                _n = _step2.value;
+                _context6.prev = 11;
+
+                if (!_n.secret) {
+                  _this.secret(_n);
+                }
+
+                _context6.next = 15;
+                return _this.owner.sendRestRequest("".concat(_n.properties.restBaseUrl, "/").concat(call), payload, _n.secret);
+
+              case 15:
+                r = _context6.sent;
+
+                if (!(r.code >= 200 && r.code < 300)) {
+                  _context6.next = 19;
+                  break;
+                }
+
+                _this.emit('restCallSuccess', call, _n, r);
+
+                return _context6.abrupt("return", r);
+
+              case 19:
+                if (_this.logger) {
+                  _this.logger.debug("Got not 2** response for a call to ".concat(_n.node_name, ":\n").concat(r.code, ": ").concat(r.content));
+                }
+
+                _this.emit("".concat(call, "Error"), _n, r);
+
+                _context6.next = 26;
+                break;
+
+              case 23:
+                _context6.prev = 23;
+                _context6.t0 = _context6["catch"](11);
+
+                if (_this.logger) {
+                  _this.logger.warn("Error while communicating with ".concat(_n.node_name, ": ").concat(_context6.t0.message));
+                }
+
+              case 26:
+                _iteratorNormalCompletion2 = true;
+                _context6.next = 9;
+                break;
+
+              case 29:
+                _context6.next = 35;
+                break;
+
+              case 31:
+                _context6.prev = 31;
+                _context6.t1 = _context6["catch"](7);
+                _didIteratorError2 = true;
+                _iteratorError2 = _context6.t1;
+
+              case 35:
+                _context6.prev = 35;
+                _context6.prev = 36;
+
+                if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+                  _iterator2.return();
+                }
+
+              case 38:
+                _context6.prev = 38;
+
+                if (!_didIteratorError2) {
+                  _context6.next = 41;
+                  break;
+                }
+
+                throw _iteratorError2;
+
+              case 41:
+                return _context6.finish(38);
+
+              case 42:
+                return _context6.finish(35);
+
+              case 43:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, _callee6, this, [[7, 31, 35, 43], [11, 23], [36,, 38, 42]]);
+      }));
+
+      return function (_x4, _x5) {
+        return _ref6.apply(this, arguments);
+      };
+    }());
+
+    _this.owner = owner;
+    _this.nodes = new _px_nodes.PxNodes();
+    _this.logger = null;
+    _this._service = SERVICE_NOT_INIT;
+    _this._initialized = false;
+    return _this;
   }
 
   _createClass(PxService, [{
@@ -254,7 +544,7 @@ function () {
   }]);
 
   return PxService;
-}();
+}(_events.default);
 
 exports.PxService = PxService;
 
@@ -283,7 +573,7 @@ function (_Error) {
       Error.captureStackTrace(_assertThisInitialized(_assertThisInitialized(_this2)), ServiceError);
     }
 
-    self.code = code;
+    _this2.code = code;
     return _this2;
   }
 
