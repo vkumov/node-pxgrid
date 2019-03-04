@@ -1,18 +1,18 @@
 "use strict";
-
+const tls = require('tls');
 const winston = require('winston');
-const {
-    format
-} = winston;
+const { format } = winston;
 
-import {
-    transports
-} from './utils/logging';
+import { transports } from './utils/logging';
 
-export const PX_INET4 = 1;
+export const PX_INET4  = 1;
 export const PX_INET46 = 2;
 export const PX_INET64 = 3;
-export const PX_INET6 = 4;
+export const PX_INET6  = 4;
+
+export const VERIFY_NONE = 'VERIFY_NONE';
+export const VERIFY_CA   = 'VERIFY_CA';
+export const VERIFY_ALL  = 'VERIFY_ALL';
 
 function matchRule(str, rule) {
     return new RegExp("^" + rule.split("*").join(".*") + "$").test(str);
@@ -24,7 +24,7 @@ export class PxConfig {
         this.username = typeof options.username !== 'undefined' ? options.username : this.nodename;
         this.password = typeof options.password !== 'undefined' ? options.password : '';
         this.description = typeof options.description !== 'undefined' ? options.description : '';
-        this.rejectUnauthorized = typeof options.rejectUnauthorized !== 'undefined' ? options.rejectUnauthorized : true;
+        this.verify = typeof options.verify !== 'undefined' ? options.verify : VERIFY_ALL;
 
         this.dns = options.dns || [];
         this.inetFamily = typeof options.inetFamily !== 'undefined' ? options.inetFamily : PX_INET46;
@@ -50,7 +50,7 @@ export class PxConfig {
         if (new_dns && !Array.isArray(new_dns)) {
             throw new TypeError('Must be an array of new DNS servers');
         }
-        this._dns = dns;
+        this._dns = new_dns;
     }
 
     get inetFamily() {
@@ -120,9 +120,18 @@ export class PxConfig {
             cert: this._clientcert,
             key: this._clientkey,
             passphrase: this._clientkeypassword,
-            rejectUnauthorized: this.rejectUnauthorized,
+            rejectUnauthorized: this.verify === VERIFY_NONE ? false : true,
+            checkServerIdentity: this.checkServerIdentity,
             // servername: this._hosts[hostIdx].host,
         }
+    }
+
+    checkServerIdentity = (servername, cert) => {
+        if (this.verify !== VERIFY_ALL) {
+            return undefined;
+        }
+
+        return tls.checkServerIdentity(servername, cert);
     }
 
     _isDebug = (component) => {

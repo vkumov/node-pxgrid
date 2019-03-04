@@ -200,7 +200,7 @@ function () {
         throw new TypeError('Must be an array of new DNS servers');
       }
 
-      this._dns = dns;
+      this._dns = new_dns;
     }
   }, {
     key: "inetFamily",

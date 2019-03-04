@@ -72,12 +72,10 @@ export default class Srv extends PxService {
                 webSocketFactory: () => {
                     return new WebSocket(
                         options.url,
-                        Object.assign(
-                            {
-                                timeout: typeof options.timeout !== 'undefined' ? options.timeout : 30000,
-                            },
-                            options.httpsOptions
-                        )
+                        {
+                            timeout: typeof options.timeout !== 'undefined' ? options.timeout : 30000,
+                            ...options.httpsOptions
+                        }
                     );
                 }
             });

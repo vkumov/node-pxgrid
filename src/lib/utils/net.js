@@ -43,16 +43,24 @@ export const postRequest = async (url, ip, payload, headers, httpsOptions) => {
 }
 
 export const isPortOpen = async (ip, port) => {
-    let s = new NET.Socket();
-    s.setTimeout(2000);
     try {
-        await s.connect({
-            port: port,
-            host: ip,
-            family: NET.isIP(ip),
-        });
-        await s.destroy();
-        return true;
+        return await new Promise((resolve => {
+            const socket = new NET.Socket();
+    
+            const onError = () => {
+                socket.destroy();
+                resolve(false);
+            };
+    
+            socket.setTimeout(2000);
+            socket.on('error', onError);
+            socket.on('timeout', onError);
+    
+            socket.connect(port, ip, () => {
+                socket.end();
+                resolve(true);
+            });
+        }));
     } catch (e) {
         return false;
     }
