@@ -35,9 +35,25 @@ function (_PxService) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Srv).call(this, owner));
 
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "restCalls", function (services) {
+      return [{
+        call: 'getSecurityGroups',
+        params: ['ID', 'NODE']
+      }, {
+        call: 'getSecurityGroupAcls',
+        params: ['ID', 'NODE']
+      }, {
+        call: 'getEgressPolicies',
+        params: ['NODE']
+      }, {
+        call: 'getEgressMatrices',
+        params: ['NODE']
+      }];
+    });
+
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getSecurityGroups", function (id) {
       var node = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-      payload = typeof id !== 'undefined' ? {
+      var payload = typeof id !== 'undefined' ? {
         id: id
       } : {};
       return _this._generalCall('getSecurityGroups', payload, node);
@@ -45,7 +61,7 @@ function (_PxService) {
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getSecurityGroupAcls", function (id) {
       var node = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-      payload = typeof id !== 'undefined' ? {
+      var payload = typeof id !== 'undefined' ? {
         id: id
       } : {};
       return _this._generalCall('getSecurityGroupAcls', payload, node);
@@ -53,13 +69,13 @@ function (_PxService) {
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getEgressPolicies", function () {
       var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
-      payload = {};
+      var payload = {};
       return _this._generalCall('getEgressPolicies', payload, node);
     });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getEgressMatrices", function () {
       var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
-      payload = {};
+      var payload = {};
       return _this._generalCall('getEgressMatrices', payload, node);
     });
 

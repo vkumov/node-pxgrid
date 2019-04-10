@@ -35,9 +35,25 @@ function (_PxService) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Srv).call(this, owner));
 
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "restCalls", function (services) {
+      return [{
+        call: 'getEndpoints',
+        params: ['Filter', 'NODE']
+      }, {
+        call: 'getEndpointByMac',
+        params: ['MAC', 'NODE']
+      }, {
+        call: 'getEndpointsByType',
+        params: ['EP type:NON_COMPLIANT,REGISTERED,DISCONNECTED', 'NODE']
+      }, {
+        call: 'getEndpointsByOsType',
+        params: ['OS type:ANDROID,IOS,WINDOWS', 'NODE']
+      }];
+    });
+
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getEndpoints", function (filter) {
       var node = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-      payload = filter ? {
+      var payload = filter ? {
         filter: filter
       } : {};
       return _this._generalCall('getEndpoints', payload, node);
@@ -50,7 +66,7 @@ function (_PxService) {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "MAC address must be specified for getEndpointByMacAddress");
       }
 
-      payload = {
+      var payload = {
         "macAddress": mac
       };
       return _this._generalCall('getEndpointByMacAddress', payload, node);
@@ -64,7 +80,7 @@ function (_PxService) {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "Type can be one of: NON_COMPLIANT, REGISTERED or DISCONNECTED");
       }
 
-      payload = {
+      var payload = {
         "type": ep_type
       };
       return _this._generalCall('getEndpointsByType', payload, node);
@@ -78,7 +94,7 @@ function (_PxService) {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "Type should be one of: ANDROID, IOS or WINDOWS");
       }
 
-      payload = {
+      var payload = {
         "osType": os_type
       };
       return _this._generalCall('getEndpointsByOsType', payload, node);

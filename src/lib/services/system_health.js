@@ -6,9 +6,16 @@ export default class Srv extends PxService {
         this.service = "com.cisco.ise.system";
         this.logger = owner.getLogger('pxgrid:service:system_health');
     }
+    
+    restCalls = (services) => {
+        return [
+            { call: 'getHealths',      params: ['Node Name','Start Timestamp','NODE'] },
+            { call: 'getPerformances', params: ['Node Name','Start Timestamp','NODE'] },
+        ];
+    }
 
     getHealths = (node_name, start_timestamp, node = -1) => {
-        payload = {};
+        const payload = {};
         if (node_name) {
             // populate nodeName if specified
             payload.nodeName = node_name;
@@ -21,7 +28,7 @@ export default class Srv extends PxService {
     }
 
     getPerformances = (node_name, start_timestamp, node = -1) => {
-        payload = {};
+        const payload = {};
         if (node_name) {
             // populate nodeName if specified
             payload.nodeName = node_name;

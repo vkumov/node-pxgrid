@@ -108,10 +108,11 @@ var PxConsumer = function PxConsumer(config) {
                 headers.Authorization = "Basic ".concat(b64);
               }
 
-              _context.next = 16;
+              _context.prev = 14;
+              _context.next = 17;
               return utils.postRequest(url, ip, payload, headers, _this.sslOptions(o));
 
-            case 16:
+            case 17:
               response = _context.sent;
 
               _this.logger.debug('--- Response');
@@ -132,12 +133,26 @@ var PxConsumer = function PxConsumer(config) {
 
               return _context.abrupt("return", new PxRestResponse(response.status, response.data));
 
-            case 23:
+            case 26:
+              _context.prev = 26;
+              _context.t0 = _context["catch"](14);
+
+              if (!_context.t0.response) {
+                _context.next = 32;
+                break;
+              }
+
+              return _context.abrupt("return", new PxRestResponse(_context.t0.response.status, _context.t0.response.data));
+
+            case 32:
+              throw _context.t0;
+
+            case 33:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, this);
+      }, _callee, this, [[14, 26]]);
     }));
 
     return function (_x, _x2) {
@@ -153,10 +168,9 @@ var PxConsumer = function PxConsumer(config) {
     regeneratorRuntime.mark(function _callee2(url_suffix, payload) {
       var authz,
           i,
-          _host,
+          host,
           url,
           _args2 = arguments;
-
       return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
@@ -166,41 +180,44 @@ var PxConsumer = function PxConsumer(config) {
 
             case 2:
               if (!(i < _this.config.hostsLength)) {
-                _context2.next = 18;
+                _context2.next = 20;
                 break;
               }
 
-              _context2.prev = 3;
-              _host = _this.config.getHostName(i);
-              url = "https://".concat(_host, ":8910/pxgrid/control/").concat(url_suffix);
-              _context2.next = 8;
+              host = void 0;
+              _context2.prev = 4;
+              host = _this.config.getHostName(i);
+              url = "https://".concat(host, ":8910/pxgrid/control/").concat(url_suffix);
+              _context2.next = 9;
               return _this.sendRestRequest(url, payload, authz);
 
-            case 8:
+            case 9:
               return _context2.abrupt("return", _context2.sent);
 
-            case 11:
-              _context2.prev = 11;
-              _context2.t0 = _context2["catch"](3);
+            case 12:
+              _context2.prev = 12;
+              _context2.t0 = _context2["catch"](4);
+
+              _this.logger.debug(_context2.t0);
 
               _this.logger.warn("Control REST to ".concat(host, " failed, trying next"));
 
-              return _context2.abrupt("continue", 15);
+              return _context2.abrupt("continue", 17);
 
-            case 15:
+            case 17:
               i++;
               _context2.next = 2;
               break;
 
-            case 18:
+            case 20:
               throw new PxConsumerError('CONTROL_REST_FAILED', "None of hosts responded to ".concat(url_suffix));
 
-            case 19:
+            case 21:
             case "end":
               return _context2.stop();
           }
         }
-      }, _callee2, this, [[3, 11]]);
+      }, _callee2, this, [[4, 12]]);
     }));
 
     return function (_x3, _x4) {
@@ -253,7 +270,7 @@ var PxConsumer = function PxConsumer(config) {
             if (response.code == 200 && updateConfig) {
               _this.config.password = response.content['password'];
               _this.config.nodename = response.content['nodeName'];
-              _this.config.username = response.content['userName'];
+              _this.config.username = response.content['nodeName'];
             }
 
             return _context3.abrupt("return", response);

@@ -65,6 +65,8 @@ export class PxService extends EventEmitter {
          */
         this.initialized();
 
+        this.logger.debug('Service lookup');
+
         let r = await this.owner.serviceLookup(this.service);
         if (r.code != 200) {
             throw new ServiceError('BAD_RESPONSE', `Got unexpected response from host: ${r.code}: ${r.content}`);
@@ -80,6 +82,8 @@ export class PxService extends EventEmitter {
          * @param {Object} node node for which access secret should be updated.
          */
         this.initialized();
+
+        this.logger.debug(`Updating secret of ${node}`);
 
         let r = await this.owner.accessSecret(node.node_name);
         if (r.code != 200) {
@@ -97,6 +101,8 @@ export class PxService extends EventEmitter {
          */
         this.initialized();
 
+        this.logger.debug('Updating secrets');
+
         let r = {
             success: [],
             fail: []
@@ -108,12 +114,11 @@ export class PxService extends EventEmitter {
         for (node of this.nodes) {
             try {
                 await this.secret(node);
+                r.success.push(n.node_name);
             } catch (e) {
                 if (this.logger) { this.logger.warn(`Error while communicating with ${n.node_name}: ${e.message}`); }
                 r.fail.push(n.node_name);
-                continue;
             }
-            r.success.push(n.node_name);
         }
 
         return r;
@@ -127,7 +132,10 @@ export class PxService extends EventEmitter {
          */
         this.initialized();
 
+        this.logger.debug(`Checking nodes, empty: ${this.nodes.isEmpty()}`);
+
         if (this.nodes.isEmpty() || force) {
+            this.logger.debug('Looking up nodes');
             await this.lookup();
         }
 
@@ -149,25 +157,32 @@ export class PxService extends EventEmitter {
          */
         this.initialized();
 
+        this.logger.debug(`Go through nodes, node: ${node}`);
+
         let ns = this.nodes.node(node);
+        this.logger.debug(`Nodes: ${JSON.stringify(ns)}`);
+
         if (!Array.isArray(ns)) {
             ns = [ns];
         }
 
         for (const n of ns) {
+            this.logger.debug(`Trying ${n.node_name}`);
             try {
                 if (!n.secret) {
-                    this.secret(n);
+                    await this.secret(n);
                 }
                 let r = await this.owner.sendRestRequest(`${n.properties.restBaseUrl}/${call}`, payload, n.secret);
                 if (r.code >= 200 && r.code < 300) {
                     this.emit('restCallSuccess', call, n, r);
                     return r;
                 }
-                if (this.logger) { this.logger.debug(`Got not 2** response for a call to ${n.node_name}:\n${r.code}: ${r.content}`); }
+                if (this.logger) { this.logger.debug(`Got not 2** response for a call to ${n.node_name}:\n${r.code}: ${JSON.stringify(r.content)}`); }
                 this.emit(`${call}Error`, n, r);
+                return r;
             } catch (e) {
                 if (this.logger) { this.logger.warn(`Error while communicating with ${n.node_name}: ${e.message}`); }
+                throw e;
             }
         }
     }

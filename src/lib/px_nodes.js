@@ -34,7 +34,7 @@ export class PxNodes {
             nodeName,
             properties
         }) => {
-            this.add_node(new PxNode(serviceName, nodeName, properties));
+            this.add(new PxNode(serviceName, nodeName, properties));
         })
     }
 
@@ -64,7 +64,7 @@ export class PxNodes {
     }
 
     isEmpty = () => {
-        return this.nodes.length ? true : false;
+        return ( !this.nodes.length );
     }
 
     _nodeIdByName = (name) => {
@@ -76,7 +76,7 @@ export class PxNodes {
     }
 
     _nodeById = (id) => {
-        return id < 0 ? this.nodes : this.nodes[id];
+        return (id < 0 ? this.nodes : this.nodes[id]);
     }
 
     _nodeByName = (name) => {

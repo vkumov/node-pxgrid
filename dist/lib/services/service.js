@@ -142,23 +142,25 @@ function (_EventEmitter) {
                */
               _this.initialized();
 
-              _context2.next = 3;
+              _this.logger.debug('Service lookup');
+
+              _context2.next = 4;
               return _this.owner.serviceLookup(_this.service);
 
-            case 3:
+            case 4:
               r = _context2.sent;
 
               if (!(r.code != 200)) {
-                _context2.next = 6;
+                _context2.next = 7;
                 break;
               }
 
               throw new ServiceError('BAD_RESPONSE', "Got unexpected response from host: ".concat(r.code, ": ").concat(r.content));
 
-            case 6:
+            case 7:
               _this.nodes.populate(r.content.services);
 
-            case 7:
+            case 8:
             case "end":
               return _context2.stop();
           }
@@ -184,23 +186,25 @@ function (_EventEmitter) {
                  */
                 _this.initialized();
 
-                _context3.next = 3;
+                _this.logger.debug("Updating secret of ".concat(node));
+
+                _context3.next = 4;
                 return _this.owner.accessSecret(node.node_name);
 
-              case 3:
+              case 4:
                 r = _context3.sent;
 
                 if (!(r.code != 200)) {
-                  _context3.next = 6;
+                  _context3.next = 7;
                   break;
                 }
 
                 throw new ServiceError('BAD_RESPONSE', "Got unexpected response from host: ".concat(r.code, ": ").concat(r.content));
 
-              case 6:
+              case 7:
                 node.secret = r.content.secret;
 
-              case 7:
+              case 8:
               case "end":
                 return _context3.stop();
             }
@@ -231,57 +235,56 @@ function (_EventEmitter) {
                */
               _this.initialized();
 
+              _this.logger.debug('Updating secrets');
+
               r = {
                 success: [],
                 fail: []
               };
 
               if (!_this.nodes.isEmpty()) {
-                _context4.next = 4;
+                _context4.next = 5;
                 break;
               }
 
               throw new ServiceError('NO_NODES', "No nodes for the service ".concat(_this.service));
 
-            case 4:
+            case 5:
               _iteratorNormalCompletion = true;
               _didIteratorError = false;
               _iteratorError = undefined;
-              _context4.prev = 7;
+              _context4.prev = 8;
               _iterator = _this.nodes[Symbol.iterator]();
 
-            case 9:
+            case 10:
               if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
                 _context4.next = 25;
                 break;
               }
 
               node = _step.value;
-              _context4.prev = 11;
-              _context4.next = 14;
+              _context4.prev = 12;
+              _context4.next = 15;
               return _this.secret(node);
 
-            case 14:
-              _context4.next = 21;
+            case 15:
+              r.success.push(n.node_name);
+              _context4.next = 22;
               break;
 
-            case 16:
-              _context4.prev = 16;
-              _context4.t0 = _context4["catch"](11);
+            case 18:
+              _context4.prev = 18;
+              _context4.t0 = _context4["catch"](12);
 
               if (_this.logger) {
                 _this.logger.warn("Error while communicating with ".concat(n.node_name, ": ").concat(_context4.t0.message));
               }
 
               r.fail.push(n.node_name);
-              return _context4.abrupt("continue", 22);
-
-            case 21:
-              r.success.push(n.node_name);
 
             case 22:
               _iteratorNormalCompletion = true;
-              _context4.next = 9;
+              _context4.next = 10;
               break;
 
             case 25:
@@ -290,7 +293,7 @@ function (_EventEmitter) {
 
             case 27:
               _context4.prev = 27;
-              _context4.t1 = _context4["catch"](7);
+              _context4.t1 = _context4["catch"](8);
               _didIteratorError = true;
               _iteratorError = _context4.t1;
 
@@ -326,7 +329,7 @@ function (_EventEmitter) {
               return _context4.stop();
           }
         }
-      }, _callee4, this, [[7, 27, 31, 39], [11, 16], [32,, 34, 38]]);
+      }, _callee4, this, [[8, 27, 31, 39], [12, 18], [32,, 34, 38]]);
     })));
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "checkNodes",
@@ -349,26 +352,30 @@ function (_EventEmitter) {
                */
               _this.initialized();
 
+              _this.logger.debug("Checking nodes, empty: ".concat(_this.nodes.isEmpty()));
+
               if (!(_this.nodes.isEmpty() || force)) {
-                _context5.next = 5;
+                _context5.next = 7;
                 break;
               }
 
-              _context5.next = 5;
+              _this.logger.debug('Looking up nodes');
+
+              _context5.next = 7;
               return _this.lookup();
 
-            case 5:
+            case 7:
               if (!_this.nodes.isEmpty()) {
-                _context5.next = 7;
+                _context5.next = 9;
                 break;
               }
 
               throw new ServiceError("NO_NODES", "No nodes for the service ".concat(_this.service));
 
-            case 7:
+            case 9:
               return _context5.abrupt("return", true);
 
-            case 8:
+            case 10:
             case "end":
               return _context5.stop();
           }
@@ -410,7 +417,11 @@ function (_EventEmitter) {
                  */
                 _this.initialized();
 
+                _this.logger.debug("Go through nodes, node: ".concat(node));
+
                 ns = _this.nodes.node(node);
+
+                _this.logger.debug("Nodes: ".concat(JSON.stringify(ns)));
 
                 if (!Array.isArray(ns)) {
                   ns = [ns];
@@ -419,30 +430,38 @@ function (_EventEmitter) {
                 _iteratorNormalCompletion2 = true;
                 _didIteratorError2 = false;
                 _iteratorError2 = undefined;
-                _context6.prev = 7;
+                _context6.prev = 9;
                 _iterator2 = ns[Symbol.iterator]();
 
-              case 9:
+              case 11:
                 if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
-                  _context6.next = 29;
+                  _context6.next = 36;
                   break;
                 }
 
                 _n = _step2.value;
-                _context6.prev = 11;
 
-                if (!_n.secret) {
-                  _this.secret(_n);
+                _this.logger.debug("Trying ".concat(_n.node_name));
+
+                _context6.prev = 14;
+
+                if (_n.secret) {
+                  _context6.next = 18;
+                  break;
                 }
 
-                _context6.next = 15;
+                _context6.next = 18;
+                return _this.secret(_n);
+
+              case 18:
+                _context6.next = 20;
                 return _this.owner.sendRestRequest("".concat(_n.properties.restBaseUrl, "/").concat(call), payload, _n.secret);
 
-              case 15:
+              case 20:
                 r = _context6.sent;
 
                 if (!(r.code >= 200 && r.code < 300)) {
-                  _context6.next = 19;
+                  _context6.next = 24;
                   break;
                 }
 
@@ -450,69 +469,70 @@ function (_EventEmitter) {
 
                 return _context6.abrupt("return", r);
 
-              case 19:
+              case 24:
                 if (_this.logger) {
-                  _this.logger.debug("Got not 2** response for a call to ".concat(_n.node_name, ":\n").concat(r.code, ": ").concat(r.content));
+                  _this.logger.debug("Got not 2** response for a call to ".concat(_n.node_name, ":\n").concat(r.code, ": ").concat(JSON.stringify(r.content)));
                 }
 
                 _this.emit("".concat(call, "Error"), _n, r);
 
-                _context6.next = 26;
-                break;
+                return _context6.abrupt("return", r);
 
-              case 23:
-                _context6.prev = 23;
-                _context6.t0 = _context6["catch"](11);
+              case 29:
+                _context6.prev = 29;
+                _context6.t0 = _context6["catch"](14);
 
                 if (_this.logger) {
                   _this.logger.warn("Error while communicating with ".concat(_n.node_name, ": ").concat(_context6.t0.message));
                 }
 
-              case 26:
+                throw _context6.t0;
+
+              case 33:
                 _iteratorNormalCompletion2 = true;
-                _context6.next = 9;
+                _context6.next = 11;
                 break;
 
-              case 29:
-                _context6.next = 35;
+              case 36:
+                _context6.next = 42;
                 break;
 
-              case 31:
-                _context6.prev = 31;
-                _context6.t1 = _context6["catch"](7);
+              case 38:
+                _context6.prev = 38;
+                _context6.t1 = _context6["catch"](9);
                 _didIteratorError2 = true;
                 _iteratorError2 = _context6.t1;
 
-              case 35:
-                _context6.prev = 35;
-                _context6.prev = 36;
+              case 42:
+                _context6.prev = 42;
+                _context6.prev = 43;
 
                 if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
                   _iterator2.return();
                 }
 
-              case 38:
-                _context6.prev = 38;
+              case 45:
+                _context6.prev = 45;
 
                 if (!_didIteratorError2) {
-                  _context6.next = 41;
+                  _context6.next = 48;
                   break;
                 }
 
                 throw _iteratorError2;
 
-              case 41:
-                return _context6.finish(38);
+              case 48:
+                return _context6.finish(45);
 
-              case 42:
-                return _context6.finish(35);
+              case 49:
+                return _context6.finish(42);
 
-              case 43:
+              case 50:
               case "end":
                 return _context6.stop();
             }
           }
-        }, _callee6, this, [[7, 31, 35, 43], [11, 23], [36,, 38, 42]]);
+        }, _callee6, this, [[9, 38, 42, 50], [14, 29], [43,, 45, 49]]);
       }));
 
       return function (_x4, _x5) {

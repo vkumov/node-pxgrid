@@ -7,7 +7,11 @@ import axios from 'axios';
 import https from 'https';
 import winston from 'winston';
 
-const logger = winston.loggers.get('pxgrid:utils:net');
+let logger;
+
+export const setUtilsLogger = (cb) => {
+    logger = cb('pxgrid:utils:net');
+}
 
 export const postRequest = async (url, ip, payload, headers, httpsOptions) => {
     /**
@@ -32,13 +36,20 @@ export const postRequest = async (url, ip, payload, headers, httpsOptions) => {
     o.hostname = ip;
     o.port = o.port || 8910;
     httpsOptions.keepAlive = typeof httpsOptions.keepAlive ===
-        'undefined' ? true : httpsOptions.keepAlive;
+        'undefined' ? false : httpsOptions.keepAlive;
+
+    logger.debug(`URL: ${o.href}`);
+    logger.debug(`Payload: ${JSON.stringify(payload)}`);
+    logger.debug(`Headers: ${JSON.stringify(headers)}`);
+    logger.debug(`HTTPS: ${JSON.stringify(httpsOptions)}`);
+
+    const httpsAgent = new https.Agent(httpsOptions);
+
     const result = await axios
         .post(o.href, payload, {
-            headers: headers,
-            httpsAgent: new https.Agent(httpsOptions),
+            headers,
+            httpsAgent
         });
-
     return result;
 }
 

@@ -35,9 +35,28 @@ function (_PxService) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Srv).call(this, owner));
 
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "restCalls", function (services) {
+      return [{
+        call: 'getSessions',
+        params: ['Start Timestamp', 'NODE']
+      }, {
+        call: 'getSessionsByIp',
+        params: ['IP', 'NODE']
+      }, {
+        call: 'getSessionsByMac',
+        params: ['MAC', 'NODE']
+      }, {
+        call: 'getUserGroups',
+        params: ['NODE']
+      }, {
+        call: 'getUserGroupByUsername',
+        params: ['Username', 'NODE']
+      }];
+    });
+
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getSessions", function (startTimestamp) {
       var node = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-      payload = startTimestamp ? {
+      var payload = startTimestamp ? {
         "startTimestamp": new Date(startTimestamp).toISOString()
       } : {};
       return _this._generalCall('getSessions', payload, node);
@@ -50,7 +69,7 @@ function (_PxService) {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "IP address must be specified for getSessionByIpAddress");
       }
 
-      payload = {
+      var payload = {
         "ipAddress": ip
       };
       return _this._generalCall('getSessionByIpAddress', payload, node);
@@ -63,7 +82,7 @@ function (_PxService) {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "MAC address must be specified for getSessionByMacAddress");
       }
 
-      payload = {
+      var payload = {
         "macAddress": mac
       };
       return _this._generalCall('getSessionByMacAddress', payload, node);
@@ -71,7 +90,7 @@ function (_PxService) {
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getUserGroups", function () {
       var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
-      payload = {};
+      var payload = {};
       return _this._generalCall('getUserGroups', payload, node);
     });
 
@@ -82,7 +101,7 @@ function (_PxService) {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "Username must be provided for getUserGroupByUserName");
       }
 
-      payload = {
+      var payload = {
         "userName": username
       };
       return _this._generalCall('getUserGroupByUserName', payload, node);

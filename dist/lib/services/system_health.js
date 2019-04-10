@@ -35,9 +35,19 @@ function (_PxService) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Srv).call(this, owner));
 
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "restCalls", function (services) {
+      return [{
+        call: 'getHealths',
+        params: ['Node Name', 'Start Timestamp', 'NODE']
+      }, {
+        call: 'getPerformances',
+        params: ['Node Name', 'Start Timestamp', 'NODE']
+      }];
+    });
+
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getHealths", function (node_name, start_timestamp) {
       var node = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
-      payload = {};
+      var payload = {};
 
       if (node_name) {
         // populate nodeName if specified
@@ -54,7 +64,7 @@ function (_PxService) {
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getPerformances", function (node_name, start_timestamp) {
       var node = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
-      payload = {};
+      var payload = {};
 
       if (node_name) {
         // populate nodeName if specified

@@ -44,36 +44,46 @@ export default class PxConsumer {
             headers.Authorization = `Basic ${b64}`;
         }
 
-        let response = await utils.postRequest(
-            url,
-            ip,
-            payload,
-            headers,
-            this.sslOptions(o)
-        );
+        try {
+            let response = await utils.postRequest(
+                url,
+                ip,
+                payload,
+                headers,
+                this.sslOptions(o)
+            );
 
-        this.logger.debug('--- Response');
-        this.logger.debug(`${response.status} ${response.statusText}`);
-        this.logger.debug(JSON.stringify(response.headers));
-        this.logger.debug(JSON.stringify(response.data));
+            this.logger.debug('--- Response');
+            this.logger.debug(`${response.status} ${response.statusText}`);
+            this.logger.debug(JSON.stringify(response.headers));
+            this.logger.debug(JSON.stringify(response.data));
 
-        if (response.data) {
-            try {
-                response.data = JSON.parse(response.data);
-            } catch (e) {
-                this.logger.debug(e.message);
+            if (response.data) {
+                try {
+                    response.data = JSON.parse(response.data);
+                } catch (e) {
+                    this.logger.debug(e.message);
+                }
+            }
+            return new PxRestResponse(response.status, response.data);
+        } catch (e) {
+            if (e.response) {
+                return new PxRestResponse(e.response.status, e.response.data);
+            } else {
+                throw e;
             }
         }
-        return new PxRestResponse(response.status, response.data);
     }
 
     sendControlRest = async (url_suffix, payload, authz = true) => {
         for (let i = 0; i < this.config.hostsLength; i++) {
+            let host;
             try {
-                let host = this.config.getHostName(i);
+                host = this.config.getHostName(i);
                 let url = `https://${host}:8910/pxgrid/control/${url_suffix}`;
                 return await this.sendRestRequest(url, payload, authz);
             } catch (e) {
+                this.logger.debug(e);
                 this.logger.warn(`Control REST to ${host} failed, trying next`);
                 continue;
             }
@@ -100,7 +110,7 @@ export default class PxConsumer {
         if (response.code == 200 && updateConfig) {
             this.config.password = response.content['password'];
             this.config.nodename = response.content['nodeName'];
-            this.config.username = response.content['userName'];
+            this.config.username = response.content['nodeName'];
         }
 
         return response;

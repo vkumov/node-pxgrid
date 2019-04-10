@@ -7,12 +7,28 @@ export default class Srv extends PxService {
         this.logger = owner.getLogger('pxgrid:service:anc_config');
     }
 
+    restCalls = (services) => {
+        return [
+            { call: 'getPolicies',        params: ['NODE'] },
+            { call: 'getPolicyByName',    params: ['Name', 'NODE'] },
+            { call: 'createPolicy',       params: ['Policy', 'NODE'] },
+            { call: 'deletePolicyByName', params: ['Name', 'NODE'] },
+            { call: 'getEndpoints',       params: ['NODE'] },
+            { call: 'getEndpointByMac',   params: ['MAC', 'NODE'] },
+            { call: 'applyEndpointByIp',  params: ['IP', 'Policy', 'NODE'] },
+            { call: 'applyEndpointByMac', params: ['MAC', 'Policy', 'NODE'] },
+            { call: 'clearEndpointByIp',  params: ['IP', 'Policy', 'NODE'] },
+            { call: 'clearEndpointByMac', params: ['MAC', 'Policy', 'NODE'] },
+            { call: 'getOperationStatus', params: ['ID', 'NODE'] },
+        ];
+    }
+
     /** 
      * Policy REST calls
      */
 
     getPolicies = (node = -1) => {
-        payload = {};
+        const payload = {};
         return this._generalCall('getPolicies', payload, node);
     }
 
@@ -49,7 +65,7 @@ export default class Srv extends PxService {
      */
 
     getEndpoints = (node = -1) => {
-        payload = {};
+        const payload = {};
         return this._generalCall('getEndpoints', payload, node);
     }
 

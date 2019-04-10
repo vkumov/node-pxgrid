@@ -35,9 +35,19 @@ function (_PxService) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Srv).call(this, owner));
 
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "restCalls", function (services) {
+      return [{
+        call: 'getFailures',
+        params: ['Start Timestamp', 'NODE']
+      }, {
+        call: 'getFailureById',
+        params: ['ID', 'NODE']
+      }];
+    });
+
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getFailures", function (startTimestamp) {
       var node = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-      payload = startTimestamp ? {
+      var payload = startTimestamp ? {
         "startTimestamp": new Date(startTimestamp).toISOString()
       } : {};
       return _this._generalCall('getFailures', payload, node);
@@ -50,7 +60,7 @@ function (_PxService) {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "Failure ID must be specified for getFailureById");
       }
 
-      payload = {
+      var payload = {
         id: id
       };
       return _this._generalCall('getFailureById', payload, node);

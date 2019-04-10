@@ -3,9 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PxConfigError = exports.PxConfig = exports.PX_INET6 = exports.PX_INET64 = exports.PX_INET46 = exports.PX_INET4 = void 0;
+exports.PxConfigError = exports.PxConfig = exports.VERIFY_ALL = exports.VERIFY_CA = exports.VERIFY_NONE = exports.PX_INET6 = exports.PX_INET64 = exports.PX_INET46 = exports.PX_INET4 = void 0;
 
 var _logging = require("./utils/logging");
+
+var _net = require("./utils/net");
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -35,6 +37,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+var tls = require('tls');
+
 var winston = require('winston');
 
 var format = winston.format;
@@ -46,6 +50,12 @@ var PX_INET64 = 3;
 exports.PX_INET64 = PX_INET64;
 var PX_INET6 = 4;
 exports.PX_INET6 = PX_INET6;
+var VERIFY_NONE = 'VERIFY_NONE';
+exports.VERIFY_NONE = VERIFY_NONE;
+var VERIFY_CA = 'VERIFY_CA';
+exports.VERIFY_CA = VERIFY_CA;
+var VERIFY_ALL = 'VERIFY_ALL';
+exports.VERIFY_ALL = VERIFY_ALL;
 
 function matchRule(str, rule) {
   return new RegExp("^" + rule.split("*").join(".*") + "$").test(str);
@@ -127,9 +137,17 @@ function () {
         cert: _this._clientcert,
         key: _this._clientkey,
         passphrase: _this._clientkeypassword,
-        rejectUnauthorized: _this.rejectUnauthorized // servername: this._hosts[hostIdx].host,
-
+        rejectUnauthorized: _this.verify === VERIFY_NONE ? false : true,
+        checkServerIdentity: _this.checkServerIdentity
       };
+    });
+
+    _defineProperty(this, "checkServerIdentity", function (servername, cert) {
+      if (_this.verify !== VERIFY_ALL) {
+        return undefined;
+      }
+
+      return tls.checkServerIdentity(servername, cert);
     });
 
     _defineProperty(this, "_isDebug", function (component) {
@@ -173,9 +191,10 @@ function () {
     this.username = typeof _options.username !== 'undefined' ? _options.username : this.nodename;
     this.password = typeof _options.password !== 'undefined' ? _options.password : '';
     this.description = typeof _options.description !== 'undefined' ? _options.description : '';
-    this.rejectUnauthorized = typeof _options.rejectUnauthorized !== 'undefined' ? _options.rejectUnauthorized : true;
+    this.verify = typeof _options.verify !== 'undefined' ? _options.verify : VERIFY_ALL;
     this.dns = _options.dns || [];
     this.inetFamily = typeof _options.inetFamily !== 'undefined' ? _options.inetFamily : PX_INET46;
+    this._hosts = [];
     _options.hosts = typeof _options.hosts !== 'undefined' && Array.isArray(_options.hosts) ? _options.hosts : [];
 
     _options.hosts.forEach(function (h) {
@@ -185,9 +204,10 @@ function () {
     this._clientcert = typeof _options.clientcert !== 'undefined' ? _options.clientcert : '';
     this._clientkey = typeof _options.clientkey !== 'undefined' ? _options.clientkey : '';
     this._clientkeypassword = typeof _options.clientkeypassword !== 'undefined' ? _options.clientkeypassword : '';
-    this.debugs = (this.debugs || process.env.DEBUG || '').split(',');
+    this.debugs = (_options.debugs || process.env.DEBUG || '').split(',');
     this.loggers = [];
     this.logger = this.getLogger('pxgrid:config');
+    (0, _net.setUtilsLogger)(this.getLogger);
   }
 
   _createClass(PxConfig, [{

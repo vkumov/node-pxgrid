@@ -4,6 +4,7 @@ const winston = require('winston');
 const { format } = winston;
 
 import { transports } from './utils/logging';
+import { setUtilsLogger } from './utils/net';
 
 export const PX_INET4  = 1;
 export const PX_INET46 = 2;
@@ -29,6 +30,7 @@ export class PxConfig {
         this.dns = options.dns || [];
         this.inetFamily = typeof options.inetFamily !== 'undefined' ? options.inetFamily : PX_INET46;
 
+        this._hosts = [];
         options.hosts = (typeof options.hosts !== 'undefined' && Array.isArray(options.hosts)) ? options.hosts : [];
         options.hosts.forEach(h => this.addHost(h));
 
@@ -36,10 +38,11 @@ export class PxConfig {
         this._clientkey = typeof options.clientkey !== 'undefined' ? options.clientkey : '';
         this._clientkeypassword = typeof options.clientkeypassword !== 'undefined' ? options.clientkeypassword : '';
 
-        this.debugs = (this.debugs || process.env.DEBUG || '').split(',');
+        this.debugs = (options.debugs || process.env.DEBUG || '').split(',');
         this.loggers = [];
 
         this.logger = this.getLogger('pxgrid:config');
+        setUtilsLogger(this.getLogger);
     }
 
     get dns() {
@@ -122,7 +125,6 @@ export class PxConfig {
             passphrase: this._clientkeypassword,
             rejectUnauthorized: this.verify === VERIFY_NONE ? false : true,
             checkServerIdentity: this.checkServerIdentity,
-            // servername: this._hosts[hostIdx].host,
         }
     }
 

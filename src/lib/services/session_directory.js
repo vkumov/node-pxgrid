@@ -6,9 +6,19 @@ export default class Srv extends PxService {
         this.service = "com.cisco.ise.session";
         this.logger = owner.getLogger('pxgrid:service:session_directory');
     }
+    
+    restCalls = (services) => {
+        return [
+            { call: 'getSessions',            params: ['Start Timestamp','NODE'] },
+            { call: 'getSessionsByIp',        params: ['IP','NODE'] },
+            { call: 'getSessionsByMac',       params: ['MAC','NODE'] },
+            { call: 'getUserGroups',          params: ['NODE'] },
+            { call: 'getUserGroupByUsername', params: ['Username','NODE'] },
+        ];
+    }
 
     getSessions = (startTimestamp, node = -1) => {
-        payload = startTimestamp ? {
+        const payload = startTimestamp ? {
             "startTimestamp": new Date(startTimestamp).toISOString(),
         } : {};
         return this._generalCall('getSessions', payload, node);
@@ -18,7 +28,7 @@ export default class Srv extends PxService {
         if (!ip) {
             throw new ServiceError("INCORRECT_PARAMETERS", "IP address must be specified for getSessionByIpAddress");
         }
-        payload = {
+        const payload = {
             "ipAddress": ip,
         };
         return this._generalCall('getSessionByIpAddress', payload, node);
@@ -28,14 +38,14 @@ export default class Srv extends PxService {
         if (!mac) {
             throw new ServiceError("INCORRECT_PARAMETERS", "MAC address must be specified for getSessionByMacAddress");
         }
-        payload = {
+        const payload = {
             "macAddress": mac,
         };
         return this._generalCall('getSessionByMacAddress', payload, node);
     }
 
     getUserGroups = (node = -1) => {
-        payload = {};
+        const payload = {};
         return this._generalCall('getUserGroups', payload, node);
     }
 
@@ -43,7 +53,7 @@ export default class Srv extends PxService {
         if (!username) {
             throw new ServiceError("INCORRECT_PARAMETERS", "Username must be provided for getUserGroupByUserName");
         }
-        payload = {
+        const payload = {
             "userName": username,
         };
         return this._generalCall('getUserGroupByUserName', payload, node);

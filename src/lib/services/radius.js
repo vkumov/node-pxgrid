@@ -6,9 +6,16 @@ export default class Srv extends PxService {
         this.service = "com.cisco.ise.radius";
         this.logger = owner.getLogger('pxgrid:service:radius');
     }
+    
+    restCalls = (services) => {
+        return [
+            { call: 'getFailures', params: ['Start Timestamp','NODE'] },
+            { call: 'getFailureById', params: ['ID','NODE'] },
+        ];
+    }
 
     getFailures = (startTimestamp, node = -1) => {
-        payload = startTimestamp ? {
+        const payload = startTimestamp ? {
             "startTimestamp": new Date(startTimestamp).toISOString(),
         } : {};
 
@@ -19,7 +26,7 @@ export default class Srv extends PxService {
         if (!id) {
             throw new ServiceError("INCORRECT_PARAMETERS", "Failure ID must be specified for getFailureById");
         }
-        payload = {
+        const payload = {
             id
         };
         return this._generalCall('getFailureById', payload, node);

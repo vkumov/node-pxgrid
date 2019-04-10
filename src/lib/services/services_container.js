@@ -1,6 +1,6 @@
 "use strict";
 
-import PxService from './service';
+import { PxService } from './service';
 
 import ancConfig from './anc_config';
 import endpointAsset from './endpoint_asset';

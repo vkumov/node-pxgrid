@@ -35,9 +35,16 @@ function (_PxService) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Srv).call(this, owner));
 
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "restCalls", function (services) {
+      return [{
+        call: 'getBindings',
+        params: ['NODE']
+      }];
+    });
+
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getBindings", function () {
       var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
-      payload = {};
+      var payload = {};
       return _this._generalCall('getBindings', payload, node);
     });
 

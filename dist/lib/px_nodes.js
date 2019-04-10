@@ -66,7 +66,7 @@ function () {
             nodeName = _ref.nodeName,
             properties = _ref.properties;
 
-        _this2.add_node(new PxNode(serviceName, nodeName, properties));
+        _this2.add(new PxNode(serviceName, nodeName, properties));
       });
     });
 
@@ -99,7 +99,7 @@ function () {
     });
 
     _defineProperty(this, "isEmpty", function () {
-      return _this2.nodes.length ? true : false;
+      return !_this2.nodes.length;
     });
 
     _defineProperty(this, "_nodeIdByName", function (name) {

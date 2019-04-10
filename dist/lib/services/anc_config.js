@@ -35,9 +35,46 @@ function (_PxService) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Srv).call(this, owner));
 
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "restCalls", function (services) {
+      return [{
+        call: 'getPolicies',
+        params: ['NODE']
+      }, {
+        call: 'getPolicyByName',
+        params: ['Name', 'NODE']
+      }, {
+        call: 'createPolicy',
+        params: ['Policy', 'NODE']
+      }, {
+        call: 'deletePolicyByName',
+        params: ['Name', 'NODE']
+      }, {
+        call: 'getEndpoints',
+        params: ['NODE']
+      }, {
+        call: 'getEndpointByMac',
+        params: ['MAC', 'NODE']
+      }, {
+        call: 'applyEndpointByIp',
+        params: ['IP', 'Policy', 'NODE']
+      }, {
+        call: 'applyEndpointByMac',
+        params: ['MAC', 'Policy', 'NODE']
+      }, {
+        call: 'clearEndpointByIp',
+        params: ['IP', 'Policy', 'NODE']
+      }, {
+        call: 'clearEndpointByMac',
+        params: ['MAC', 'Policy', 'NODE']
+      }, {
+        call: 'getOperationStatus',
+        params: ['ID', 'NODE']
+      }];
+    });
+
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getPolicies", function () {
       var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
-      payload = {};
+      var payload = {};
       return _this._generalCall('getPolicies', payload, node);
     });
 
@@ -80,7 +117,7 @@ function (_PxService) {
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "getEndpoints", function () {
       var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
-      payload = {};
+      var payload = {};
       return _this._generalCall('getEndpoints', payload, node);
     });
 
@@ -186,10 +223,6 @@ function (_PxService) {
     _this.logger = owner.getLogger('pxgrid:service:anc_config');
     return _this;
   }
-  /** 
-   * Policy REST calls
-   */
-
 
   return Srv;
 }(_service.PxService);

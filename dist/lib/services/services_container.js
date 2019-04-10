@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _service = _interopRequireDefault(require("./service"));
+var _service = require("./service");
 
 var _anc_config = _interopRequireDefault(require("./anc_config"));
 
@@ -77,7 +77,7 @@ var PxServices = function PxServices(_owner) {
   _defineProperty(this, "registerClass", function (name, classRef) {
     var precreate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : True;
 
-    if (!classRef.prototype instanceof _service.default) {
+    if (!classRef.prototype instanceof _service.PxService) {
       throw new TypeError("New class must be a subclass of PxService");
     }
 
@@ -92,7 +92,7 @@ var PxServices = function PxServices(_owner) {
     for (var key in _this) {
       var el = _this[key];
 
-      if (el instanceof _service.default && el.service === service_name) {
+      if (el instanceof _service.PxService && el.service === service_name) {
         return el;
       }
     }

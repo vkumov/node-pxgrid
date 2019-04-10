@@ -1,13 +1,9 @@
-if (!global._babelPolyfill && !window._babelPolyfill) { 
+if (typeof global === 'object' && !global._babelPolyfill && typeof window === 'object' &&  !window._babelPolyfill) { 
     require("@babel/polyfill");
 }
 
-import Consumer from './lib/consumer.js';
-import Publisher from './lib/publisher.js';
+export { default as Consumer } from './lib/consumer.js';
+export { default as Publisher } from './lib/publisher.js';
 import * as PxConfig from './lib/px_config';
 
-module.exports = { 
-    Consumer: Consumer,
-    Publisher: Publisher,
-    Config: PxConfig,
-}
+export { PxConfig };
