@@ -186,6 +186,22 @@ export class PxService extends EventEmitter {
             }
         }
     }
+
+    findProperty = (property, node = -1) => {
+        this.initialized();
+
+        this.logger.debug(`Looking for property: ${property}`);
+        let ns = this.nodes.node(node);
+        this.logger.debug(`Nodes: ${JSON.stringify(ns)}`);
+
+        if (!Array.isArray(ns)) {
+            ns = [ns];
+        }
+
+        const result = [];
+        ns.forEach(n => n.properties.hasOwnProperty(property) && result.push(n.properties[property]));
+        return result;
+    }
 }
 
 export class ServiceError extends Error {

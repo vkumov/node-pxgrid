@@ -540,6 +540,28 @@ function (_EventEmitter) {
       };
     }());
 
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "findProperty", function (property) {
+      var node = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+
+      _this.initialized();
+
+      _this.logger.debug("Looking for property: ".concat(property));
+
+      var ns = _this.nodes.node(node);
+
+      _this.logger.debug("Nodes: ".concat(JSON.stringify(ns)));
+
+      if (!Array.isArray(ns)) {
+        ns = [ns];
+      }
+
+      var result = [];
+      ns.forEach(function (n) {
+        return n.properties.hasOwnProperty(property) && result.push(n.properties[property]);
+      });
+      return result;
+    });
+
     _this.owner = owner;
     _this.nodes = new _px_nodes.PxNodes();
     _this.logger = null;
