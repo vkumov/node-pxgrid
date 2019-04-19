@@ -187,10 +187,12 @@ export class PxService extends EventEmitter {
         }
     }
 
-    findProperty = (property, node = -1) => {
+    findProperty = async (property, node = -1) => {
         this.initialized();
 
         this.logger.debug(`Looking for property: ${property}`);
+        await this.checkNodes();
+
         let ns = this.nodes.node(node);
         this.logger.debug(`Nodes: ${JSON.stringify(ns)}`);
 

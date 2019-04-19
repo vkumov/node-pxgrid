@@ -125,6 +125,7 @@ export class PxConfig {
             passphrase: this._clientkeypassword,
             rejectUnauthorized: this.verify === VERIFY_NONE ? false : true,
             checkServerIdentity: this.checkServerIdentity,
+            // ciphers: 'AES256-GCM-SHA384,AES128-SHA256'
         }
     }
 

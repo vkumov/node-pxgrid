@@ -54,77 +54,124 @@ function (_PxService) {
     _asyncToGenerator(
     /*#__PURE__*/
     regeneratorRuntime.mark(function _callee() {
-      var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, node, url, httpsOptions, host, creds;
+      var node,
+          ns,
+          _iteratorNormalCompletion,
+          _didIteratorError,
+          _iteratorError,
+          _iterator,
+          _step,
+          _node,
+          url,
+          httpsOptions,
+          host,
+          creds,
+          _args = arguments;
 
       return regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              _this.logger.debug('Connecting to PubSub');
+              node = _args.length > 0 && _args[0] !== undefined ? _args[0] : -1;
 
-              _context.next = 3;
-              return _this.checkNodes();
+              if (!(_this.client && _this.client.connected)) {
+                _context.next = 3;
+                break;
+              }
+
+              return _context.abrupt("return", true);
 
             case 3:
+              _this.logger.debug('Connecting to PubSub');
+
+              _context.next = 6;
+              return _this.checkNodes();
+
+            case 6:
+              ns = _this.nodes.node(node);
+
+              _this.logger.debug("Nodes: ".concat(JSON.stringify(ns)));
+
+              if (!Array.isArray(ns)) {
+                ns = [ns];
+              }
+
               _iteratorNormalCompletion = true;
               _didIteratorError = false;
               _iteratorError = undefined;
-              _context.prev = 6;
-              _iterator = _this.nodes[Symbol.iterator]();
-
-            case 8:
-              if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-                _context.next = 36;
-                break;
-              }
-
-              node = _step.value;
-
-              _this.logger.debug("About to try node ".concat(node.node_name));
-
-              if (node.properties.hasOwnProperty('wsUrl')) {
-                _context.next = 14;
-                break;
-              }
-
-              _this.logger.warn("Node ".concat(node.node_name, " of ").concat(node.service, " doesn't have wsUrl property"));
-
-              return _context.abrupt("continue", 33);
+              _context.prev = 12;
+              _iterator = ns[Symbol.iterator]();
 
             case 14:
-              url = new _url.URL(node.properties['wsUrl']);
+              if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                _context.next = 51;
+                break;
+              }
+
+              _node = _step.value;
+
+              _this.logger.debug("About to try node ".concat(_node.node_name));
+
+              if (_node.properties.hasOwnProperty('wsUrl')) {
+                _context.next = 20;
+                break;
+              }
+
+              _this.logger.warn("Node ".concat(_node.node_name, " of ").concat(_node.service, " doesn't have wsUrl property"));
+
+              return _context.abrupt("continue", 48);
+
+            case 20:
+              url = new _url.URL(_node.properties['wsUrl']);
               httpsOptions = _this.owner.sslOptions(url);
-              host = utl.hostname;
-              _context.next = 19;
+              host = url.hostname;
+              _context.next = 25;
               return _this.owner.getNodeIp(url);
 
-            case 19:
+            case 25:
               url.hostname = _context.sent;
               creds = _this.owner.credentials();
-              _context.prev = 21;
 
-              _this.logger.debug("Trying node ".concat(node.node_name, " on url '").concat(url.href, " with creds ").concat(JSON.stringify(creds)));
+              if (_node.secret) {
+                _context.next = 30;
+                break;
+              }
 
-              _context.next = 25;
+              _context.next = 30;
+              return _this.secret(_node);
+
+            case 30:
+              creds = _objectSpread({}, creds, {
+                password: _node.secret
+              });
+              url.username = creds.username;
+              url.password = creds.password;
+              _context.prev = 33;
+
+              _this.logger.debug("Trying node ".concat(_node.node_name, " on url '").concat(url.href, " with creds ").concat(JSON.stringify(creds)));
+
+              _context.next = 37;
               return _this._tryConnection({
                 url: url.href,
                 login: creds.username,
-                passcode: creds.password,
+                passcode: '',
+                //creds.password,
                 host: host,
                 httpsOptions: httpsOptions
               });
 
-            case 25:
+            case 37:
               _this.client = _context.sent;
-              _context.next = 31;
+              _context.next = 44;
               break;
 
-            case 28:
-              _context.prev = 28;
-              _context.t0 = _context["catch"](21);
-              return _context.abrupt("continue", 33);
+            case 40:
+              _context.prev = 40;
+              _context.t0 = _context["catch"](33);
+              console.log(_context.t0);
+              return _context.abrupt("continue", 48);
 
-            case 31:
+            case 44:
               _this.client.onStompError = function (frame) {
                 return _this.onStompError(frame);
               };
@@ -133,57 +180,72 @@ function (_PxService) {
                 return _this.onWebSocketError(event);
               };
 
-            case 33:
+              _this.logger.info("WebSocket connected to ".concat(_node.node_name, " with STOPM ").concat(_this.client.connectedVersion));
+
+              return _context.abrupt("return", true);
+
+            case 48:
               _iteratorNormalCompletion = true;
-              _context.next = 8;
+              _context.next = 14;
               break;
 
-            case 36:
-              _context.next = 42;
+            case 51:
+              _context.next = 57;
               break;
 
-            case 38:
-              _context.prev = 38;
-              _context.t1 = _context["catch"](6);
+            case 53:
+              _context.prev = 53;
+              _context.t1 = _context["catch"](12);
               _didIteratorError = true;
               _iteratorError = _context.t1;
 
-            case 42:
-              _context.prev = 42;
-              _context.prev = 43;
+            case 57:
+              _context.prev = 57;
+              _context.prev = 58;
 
               if (!_iteratorNormalCompletion && _iterator.return != null) {
                 _iterator.return();
               }
 
-            case 45:
-              _context.prev = 45;
+            case 60:
+              _context.prev = 60;
 
               if (!_didIteratorError) {
-                _context.next = 48;
+                _context.next = 63;
                 break;
               }
 
               throw _iteratorError;
 
-            case 48:
-              return _context.finish(45);
+            case 63:
+              return _context.finish(60);
 
-            case 49:
-              return _context.finish(42);
+            case 64:
+              return _context.finish(57);
 
-            case 50:
+            case 65:
+              throw new _service.ServiceError('PUBSUB_UNAVAIL', "PubSub service appears to be unavailable");
+
+            case 66:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, this, [[6, 38, 42, 50], [21, 28], [43,, 45, 49]]);
+      }, _callee, this, [[12, 53, 57, 65], [33, 40], [58,, 60, 64]]);
     })));
+
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "disconnect", function () {
+      if (_this.client && _this.client.connected) {
+        _this.client.deactivate();
+      }
+
+      return;
+    });
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "_tryConnection", function () {
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       return new Promise(function (resolve, reject) {
-        client = new _stompjs.Client({
+        var client = new _stompjs.Client({
           connectHeaders: {
             login: options.login,
             passcode: options.password,
@@ -198,28 +260,28 @@ function (_PxService) {
           heartbeatOutgoing: typeof options.heartbeatOutgoing !== 'undefined' ? options.heartbeatOutgoing : 4000,
           webSocketFactory: function webSocketFactory() {
             return new _ws.default(options.url, _objectSpread({
-              timeout: typeof options.timeout !== 'undefined' ? options.timeout : 30000
+              timeout: typeof options.timeout !== 'undefined' ? options.timeout : 10000
             }, options.httpsOptions));
+          },
+          onConnect: function onConnect(frame) {
+            _this.logger.debug('WebSocket connected');
+
+            resolve(client);
+          },
+          onStompError: function onStompError(frame) {
+            _this.logger.error('Broker reported error: ' + frame.headers['message']);
+
+            _this.logger.debug('Additional details: ' + frame.body);
+
+            reject();
+          },
+          onWebSocketError: function onWebSocketError(event) {
+            _this.logger.error('WebSocket error: ' + JSON.stringify(event));
+
+            reject(event);
           }
         });
-
-        client.onConnect = function (frame) {
-          resolve(client);
-        };
-
-        client.onStompError = function (frame) {
-          _this.logger.error('Broker reported error: ' + frame.headers['message']);
-
-          _this.logger.debug('Additional details: ' + frame.body);
-
-          reject();
-        };
-
-        client.onWebSocketError = function (event) {
-          _this.logger.error('WebSocket error: ' + JSON.stringify(event));
-
-          reject(event);
-        };
+        client.activate();
       });
     });
 
@@ -247,31 +309,60 @@ function (_PxService) {
       _this.subscribtions[idx].subscription.unsubscribe();
     });
 
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "subscribe", function (topic, cb) {
-      _this.logger.debug("Subscribing for ".concat(topic));
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "subscribe",
+    /*#__PURE__*/
+    function () {
+      var _ref2 = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee2(topic, cb) {
+        var idx;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return _this.connect();
 
-      var idx = _this.subscribtions.findIndex(function (v) {
-        return v.topic === topic;
-      });
+              case 2:
+                _this.logger.debug("Subscribing for ".concat(topic));
 
-      if (idx < 0) {
-        _this.subscribtions.push({
-          topic: topic
-        });
+                idx = _this.subscribtions.findIndex(function (v) {
+                  return v.topic === topic;
+                });
 
-        idx = _this.subscribtions.length - 1;
-      }
+                if (idx < 0) {
+                  _this.subscribtions.push({
+                    topic: topic
+                  });
 
-      _this.subscribtions[idx].subscription = _this.client.subscribe(s.topic, function (message) {
-        _this.logger.debug("Got STOMP message on ".concat(topic, ": ").concat(JSON.stringify(message)));
+                  idx = _this.subscribtions.length - 1;
+                }
 
-        _this.emit('stompMessage', s, message);
+                _this.subscribtions[idx].subscription = _this.client.subscribe(topic, function (message) {
+                  _this.logger.debug("Got STOMP message on ".concat(topic, ": ").concat(JSON.stringify(message)));
 
-        if (typeof cb === 'function') {
-          cb(message);
-        }
-      });
-    });
+                  _this.logger.debug("Body: ".concat(JSON.stringify(message.body)));
+
+                  _this.emit('stompMessage', topic, message);
+
+                  if (typeof cb === 'function') {
+                    cb(message);
+                  }
+                });
+                return _context2.abrupt("return", true);
+
+              case 7:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      return function (_x, _x2) {
+        return _ref2.apply(this, arguments);
+      };
+    }());
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "onStompError", function (frame) {
       _this.logger.error('Broker reported error: ' + frame.headers['message']);
@@ -287,6 +378,7 @@ function (_PxService) {
     _this.service = "com.cisco.ise.pubsub";
     _this.logger = owner.getLogger('pxgrid:service:pubsub');
     _this.subscribtions = [];
+    _this.connected = false;
     return _this;
   }
 

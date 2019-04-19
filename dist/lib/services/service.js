@@ -540,27 +540,56 @@ function (_EventEmitter) {
       };
     }());
 
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "findProperty", function (property) {
-      var node = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "findProperty",
+    /*#__PURE__*/
+    function () {
+      var _ref7 = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee7(property) {
+        var node,
+            ns,
+            result,
+            _args7 = arguments;
+        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                node = _args7.length > 1 && _args7[1] !== undefined ? _args7[1] : -1;
 
-      _this.initialized();
+                _this.initialized();
 
-      _this.logger.debug("Looking for property: ".concat(property));
+                _this.logger.debug("Looking for property: ".concat(property));
 
-      var ns = _this.nodes.node(node);
+                _context7.next = 5;
+                return _this.checkNodes();
 
-      _this.logger.debug("Nodes: ".concat(JSON.stringify(ns)));
+              case 5:
+                ns = _this.nodes.node(node);
 
-      if (!Array.isArray(ns)) {
-        ns = [ns];
-      }
+                _this.logger.debug("Nodes: ".concat(JSON.stringify(ns)));
 
-      var result = [];
-      ns.forEach(function (n) {
-        return n.properties.hasOwnProperty(property) && result.push(n.properties[property]);
-      });
-      return result;
-    });
+                if (!Array.isArray(ns)) {
+                  ns = [ns];
+                }
+
+                result = [];
+                ns.forEach(function (n) {
+                  return n.properties.hasOwnProperty(property) && result.push(n.properties[property]);
+                });
+                return _context7.abrupt("return", result);
+
+              case 11:
+              case "end":
+                return _context7.stop();
+            }
+          }
+        }, _callee7, this);
+      }));
+
+      return function (_x6) {
+        return _ref7.apply(this, arguments);
+      };
+    }());
 
     _this.owner = owner;
     _this.nodes = new _px_nodes.PxNodes();
