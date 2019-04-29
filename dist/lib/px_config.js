@@ -138,8 +138,8 @@ function () {
         key: _this._clientkey,
         passphrase: _this._clientkeypassword,
         rejectUnauthorized: _this.verify === VERIFY_NONE ? false : true,
-        checkServerIdentity: _this.checkServerIdentity,
-        ciphers: 'AES256-GCM-SHA384,AES128-SHA256'
+        checkServerIdentity: _this.checkServerIdentity // ciphers: 'AES256-GCM-SHA384,AES128-SHA256'
+
       };
     });
 

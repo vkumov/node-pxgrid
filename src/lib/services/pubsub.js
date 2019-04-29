@@ -17,7 +17,7 @@ export default class Srv extends PxService {
         this.service = "com.cisco.ise.pubsub";
         this.logger = owner.getLogger('pxgrid:service:pubsub');
         this.subscribtions = [];
-        this.connected = false;
+        this.node = '';
     }
 
     connect = async (node = -1) => {
@@ -68,13 +68,33 @@ export default class Srv extends PxService {
                 continue;
             }
 
-            this.client.onStompError = (frame) => this.onStompError(frame);
-            this.client.onWebSocketError = (event) => this.onWebSocketError(event);
+            this.client.onStompError = (frame) => {
+                if (typeof this.onStompError === 'function') { this.onStompError(frame); }
+            };
+            this.client.onWebSocketError = (event) => {
+                if (typeof this.onWebSocketError === 'function') { this.onWebSocketError(event); }
+            };
+            this.client.onWebSocketClose = (event) => {
+                this.node = null;
+                this.logger.info(`WebSocket closed with code ${event.code} and reason "${event.reason}"`);
+                if (typeof this.onWebSocketClose === 'function') { this.onWebSocketClose(event); }
+            };
+
             this.logger.info(`WebSocket connected to ${node.node_name} with STOPM ${this.client.connectedVersion}`);
+            this.node = node;
             return true;
         }
 
         throw new ServiceError('PUBSUB_UNAVAIL', "PubSub service appears to be unavailable");
+    }
+
+    get connectionInfo () {
+        const result = { connected: false, to: '' };
+        if (this.client && this.client.connected) { 
+            result.connected = true;
+            result.to = this.node.node_name;
+        }
+        return result;
     }
 
     disconnect = () => {
@@ -131,7 +151,9 @@ export default class Srv extends PxService {
         this.subscribtions.forEach(s => this.subscribe(s.topic));
     }
 
-    unsubscribe = (topic) => {
+    unsubscribe = async (topic) => {
+        await this.connect();
+
         this.logger.debug(`Unsubscribe from ${topic}`);
         let idx = this.subscribtions.findIndex(v => v.topic === topic);
         if (idx < 0) {

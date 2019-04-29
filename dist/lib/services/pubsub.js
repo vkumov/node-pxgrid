@@ -25,6 +25,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
@@ -104,7 +108,7 @@ function (_PxService) {
 
             case 14:
               if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-                _context.next = 51;
+                _context.next = 53;
                 break;
               }
 
@@ -119,7 +123,7 @@ function (_PxService) {
 
               _this.logger.warn("Node ".concat(_node.node_name, " of ").concat(_node.service, " doesn't have wsUrl property"));
 
-              return _context.abrupt("continue", 48);
+              return _context.abrupt("continue", 50);
 
             case 20:
               url = new _url.URL(_node.properties['wsUrl']);
@@ -169,69 +173,84 @@ function (_PxService) {
               _context.prev = 40;
               _context.t0 = _context["catch"](33);
               console.log(_context.t0);
-              return _context.abrupt("continue", 48);
+              return _context.abrupt("continue", 50);
 
             case 44:
               _this.client.onStompError = function (frame) {
-                return _this.onStompError(frame);
+                if (typeof _this.onStompError === 'function') {
+                  _this.onStompError(frame);
+                }
               };
 
               _this.client.onWebSocketError = function (event) {
-                return _this.onWebSocketError(event);
+                if (typeof _this.onWebSocketError === 'function') {
+                  _this.onWebSocketError(event);
+                }
+              };
+
+              _this.client.onWebSocketClose = function (event) {
+                _this.node = null;
+
+                _this.logger.info("WebSocket closed with code ".concat(event.code, " and reason \"").concat(event.reason, "\""));
+
+                if (typeof _this.onWebSocketClose === 'function') {
+                  _this.onWebSocketClose(event);
+                }
               };
 
               _this.logger.info("WebSocket connected to ".concat(_node.node_name, " with STOPM ").concat(_this.client.connectedVersion));
 
+              _this.node = _node;
               return _context.abrupt("return", true);
 
-            case 48:
+            case 50:
               _iteratorNormalCompletion = true;
               _context.next = 14;
               break;
 
-            case 51:
-              _context.next = 57;
+            case 53:
+              _context.next = 59;
               break;
 
-            case 53:
-              _context.prev = 53;
+            case 55:
+              _context.prev = 55;
               _context.t1 = _context["catch"](12);
               _didIteratorError = true;
               _iteratorError = _context.t1;
 
-            case 57:
-              _context.prev = 57;
-              _context.prev = 58;
+            case 59:
+              _context.prev = 59;
+              _context.prev = 60;
 
               if (!_iteratorNormalCompletion && _iterator.return != null) {
                 _iterator.return();
               }
 
-            case 60:
-              _context.prev = 60;
+            case 62:
+              _context.prev = 62;
 
               if (!_didIteratorError) {
-                _context.next = 63;
+                _context.next = 65;
                 break;
               }
 
               throw _iteratorError;
 
-            case 63:
-              return _context.finish(60);
-
-            case 64:
-              return _context.finish(57);
-
             case 65:
-              throw new _service.ServiceError('PUBSUB_UNAVAIL', "PubSub service appears to be unavailable");
+              return _context.finish(62);
 
             case 66:
+              return _context.finish(59);
+
+            case 67:
+              throw new _service.ServiceError('PUBSUB_UNAVAIL', "PubSub service appears to be unavailable");
+
+            case 68:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, this, [[12, 53, 57, 65], [33, 40], [58,, 60, 64]]);
+      }, _callee, this, [[12, 55, 59, 67], [33, 40], [60,, 62, 66]]);
     })));
 
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "disconnect", function () {
@@ -291,36 +310,70 @@ function (_PxService) {
       });
     });
 
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "unsubscribe", function (topic) {
-      _this.logger.debug("Unsubscribe from ".concat(topic));
-
-      var idx = _this.subscribtions.findIndex(function (v) {
-        return v.topic === topic;
-      });
-
-      if (idx < 0) {
-        return;
-      }
-
-      if (!_this.subscribtions[idx].hasOwnProperty('subscription')) {
-        return;
-      }
-
-      _this.subscribtions[idx].subscription.unsubscribe();
-    });
-
-    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "subscribe",
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "unsubscribe",
     /*#__PURE__*/
     function () {
       var _ref2 = _asyncToGenerator(
       /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee2(topic, cb) {
+      regeneratorRuntime.mark(function _callee2(topic) {
         var idx;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
+                return _this.connect();
+
+              case 2:
+                _this.logger.debug("Unsubscribe from ".concat(topic));
+
+                idx = _this.subscribtions.findIndex(function (v) {
+                  return v.topic === topic;
+                });
+
+                if (!(idx < 0)) {
+                  _context2.next = 6;
+                  break;
+                }
+
+                return _context2.abrupt("return");
+
+              case 6:
+                if (_this.subscribtions[idx].hasOwnProperty('subscription')) {
+                  _context2.next = 8;
+                  break;
+                }
+
+                return _context2.abrupt("return");
+
+              case 8:
+                _this.subscribtions[idx].subscription.unsubscribe();
+
+              case 9:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      return function (_x) {
+        return _ref2.apply(this, arguments);
+      };
+    }());
+
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "subscribe",
+    /*#__PURE__*/
+    function () {
+      var _ref3 = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee3(topic, cb) {
+        var idx;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
                 return _this.connect();
 
               case 2:
@@ -349,18 +402,21 @@ function (_PxService) {
                     cb(message);
                   }
                 });
-                return _context2.abrupt("return", true);
 
-              case 7:
+                _this.logger.info("Subscribed for ".concat(topic));
+
+                return _context3.abrupt("return", true);
+
+              case 8:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2, this);
+        }, _callee3, this);
       }));
 
-      return function (_x, _x2) {
-        return _ref2.apply(this, arguments);
+      return function (_x2, _x3) {
+        return _ref3.apply(this, arguments);
       };
     }());
 
@@ -378,9 +434,26 @@ function (_PxService) {
     _this.service = "com.cisco.ise.pubsub";
     _this.logger = owner.getLogger('pxgrid:service:pubsub');
     _this.subscribtions = [];
-    _this.connected = false;
+    _this.node = '';
     return _this;
   }
+
+  _createClass(Srv, [{
+    key: "connectionInfo",
+    get: function get() {
+      var result = {
+        connected: false,
+        to: ''
+      };
+
+      if (this.client && this.client.connected) {
+        result.connected = true;
+        result.to = this.node.node_name;
+      }
+
+      return result;
+    }
+  }]);
 
   return Srv;
 }(_service.PxService);
