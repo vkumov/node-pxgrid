@@ -93,7 +93,7 @@ class PxConfig {
     _defineProperty(this, "getHttpsOptions", (hostIdx = 0) => {
       return {
         ca: this._hosts[hostIdx].ca,
-        cert: this._clientcert,
+        cert: Array.isArray(this._clientcert) ? this._clientcert.join("\n") : this._clientcert,
         key: this._clientkey,
         passphrase: this._clientkeypassword,
         rejectUnauthorized: this.verify === VERIFY_NONE ? false : true,
