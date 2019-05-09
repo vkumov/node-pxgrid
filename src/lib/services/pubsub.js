@@ -97,8 +97,12 @@ export default class Srv extends PxService {
         return result;
     }
 
-    disconnect = () => {
+    disconnect = async () => {
         if (this.client && this.client.connected) {
+            if (this.subscribtions.length) {
+                await Promise.all(this.subscribtions.map(async s => await s.subscription.unsubscribe()));
+                this.subscribtions = [];
+            }
             this.client.deactivate();
         }
         return;

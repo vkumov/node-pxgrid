@@ -103,8 +103,13 @@ class Srv extends _service.PxService {
       throw new _service.ServiceError('PUBSUB_UNAVAIL', "PubSub service appears to be unavailable");
     });
 
-    _defineProperty(this, "disconnect", () => {
+    _defineProperty(this, "disconnect", async () => {
       if (this.client && this.client.connected) {
+        if (this.subscribtions.length) {
+          await Promise.all(this.subscribtions.map(async s => await s.subscription.unsubscribe()));
+          this.subscribtions = [];
+        }
+
         this.client.deactivate();
       }
 
