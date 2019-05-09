@@ -87,6 +87,7 @@ class Srv extends _service.PxService {
         };
 
         this.client.onWebSocketClose = event => {
+          this.subscribtions = [];
           this.node = null;
           this.logger.info(`WebSocket closed with code ${event.code} and reason "${event.reason}"`);
 
@@ -197,6 +198,17 @@ class Srv extends _service.PxService {
         }
       });
       this.logger.info(`Subscribed for ${topic}`);
+      return true;
+    });
+
+    _defineProperty(this, "publish", async (topic, body, headers = undefined) => {
+      await this.connect();
+      this.logger.debug(`Sending to ${topic}: ${body}`);
+      await this.client.publish({
+        destination: topic,
+        body,
+        headers
+      });
       return true;
     });
 

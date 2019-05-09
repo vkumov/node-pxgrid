@@ -2,14 +2,8 @@
 
 import WebSocket from 'ws';
 import { URL } from 'url';
-import {
-    Client,
-    Message
-} from '@stomp/stompjs';
-import {
-    PxService,
-    ServiceError
-} from './service';
+import { Client } from '@stomp/stompjs';
+import { PxService, ServiceError } from './service';
 
 export default class Srv extends PxService {
     constructor(owner) {
@@ -75,6 +69,7 @@ export default class Srv extends PxService {
                 if (typeof this.onWebSocketError === 'function') { this.onWebSocketError(event); }
             };
             this.client.onWebSocketClose = (event) => {
+                this.subscribtions = [];
                 this.node = null;
                 this.logger.info(`WebSocket closed with code ${event.code} and reason "${event.reason}"`);
                 if (typeof this.onWebSocketClose === 'function') { this.onWebSocketClose(event); }
@@ -88,9 +83,9 @@ export default class Srv extends PxService {
         throw new ServiceError('PUBSUB_UNAVAIL', "PubSub service appears to be unavailable");
     }
 
-    get connectionInfo () {
+    get connectionInfo() {
         const result = { connected: false, to: '' };
-        if (this.client && this.client.connected) { 
+        if (this.client && this.client.connected) {
             result.connected = true;
             result.to = this.node.node_name;
         }
@@ -109,7 +104,7 @@ export default class Srv extends PxService {
     }
 
     _tryConnection = (options = {}) => {
-        return new Promise((resolve, reject) => { 
+        return new Promise((resolve, reject) => {
             const client = new Client({
                 connectHeaders: {
                     login: options.login,
@@ -187,6 +182,15 @@ export default class Srv extends PxService {
         });
 
         this.logger.info(`Subscribed for ${topic}`);
+        return true;
+    }
+
+    publish = async (topic, body, headers = undefined) => {
+        await this.connect();
+
+        this.logger.debug(`Sending to ${topic}: ${body}`);
+        await this.client.publish({ destination: topic, body, headers });
+
         return true;
     }
 
