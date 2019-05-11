@@ -40,6 +40,7 @@ export class PxConfig {
 
         this.debugs = (options.debugs || process.env.DEBUG || '').split(',');
         this.loggers = [];
+        this.transports = options.transports || transports;
 
         this.logger = this.getLogger('pxgrid:config');
         setUtilsLogger(this.getLogger);
@@ -153,11 +154,11 @@ export class PxConfig {
                 format.json()
             ),
             level: this._isDebug(component) ? 'debug' : 'info',
-            transports: transports,
+            transports: this.transports,
         });
 
         this.loggers.push({
-            component: component,
+            component,
             logger: winston.loggers.get(component),
         });
 
