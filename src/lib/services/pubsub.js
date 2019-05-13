@@ -162,6 +162,7 @@ export default class Srv extends PxService {
             return;
         }
         this.subscribtions[idx].subscription.unsubscribe();
+        this.logger.info(`Unsubscribed from ${topic}`);
     }
 
     subscribe = async (topic, cb) => {

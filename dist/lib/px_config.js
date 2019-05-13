@@ -129,6 +129,7 @@ class PxConfig {
         component,
         logger: winston.loggers.get(component)
       });
+      console.log(winston.loggers.get(component));
       return this.loggers[this.loggers.length - 1].logger;
     });
 
@@ -159,7 +160,7 @@ class PxConfig {
     this._clientcert = typeof _options.clientcert !== 'undefined' ? _options.clientcert : '';
     this._clientkey = typeof _options.clientkey !== 'undefined' ? _options.clientkey : '';
     this._clientkeypassword = typeof _options.clientkeypassword !== 'undefined' ? _options.clientkeypassword : '';
-    this.debugs = (_options.debugs || process.env.DEBUG || '').split(',');
+    this.debugs = (typeof _options.debugs !== 'undefined' ? _options.debugs : process.env.DEBUG || '').split(',');
     this.loggers = [];
 
     if (_options.defaultTransport) {

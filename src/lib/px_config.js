@@ -38,7 +38,7 @@ export class PxConfig {
         this._clientkey = typeof options.clientkey !== 'undefined' ? options.clientkey : '';
         this._clientkeypassword = typeof options.clientkeypassword !== 'undefined' ? options.clientkeypassword : '';
 
-        this.debugs = (options.debugs || process.env.DEBUG || '').split(',');
+        this.debugs = (typeof options.debugs !== 'undefined' ? options.debugs : (process.env.DEBUG || '')).split(',');
         this.loggers = [];
         if (options.defaultTransport) {
             if (options.transports) { 
