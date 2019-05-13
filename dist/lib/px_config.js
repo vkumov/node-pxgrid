@@ -123,10 +123,10 @@ class PxConfig {
           label: component
         }), format.json()),
         level: this._isDebug(component) ? 'debug' : 'info',
-        transports: _logging.transports
+        transports: this.transports
       });
       this.loggers.push({
-        component: component,
+        component,
         logger: winston.loggers.get(component)
       });
       return this.loggers[this.loggers.length - 1].logger;
@@ -161,6 +161,17 @@ class PxConfig {
     this._clientkeypassword = typeof _options.clientkeypassword !== 'undefined' ? _options.clientkeypassword : '';
     this.debugs = (_options.debugs || process.env.DEBUG || '').split(',');
     this.loggers = [];
+
+    if (_options.defaultTransport) {
+      if (_options.transports) {
+        this.transports = [..._options.transports, ..._logging.transports];
+      } else {
+        this.transports = _options.transports || _logging.transports;
+      }
+    } else {
+      this.transports = _options.transports || _logging.transports;
+    }
+
     this.logger = this.getLogger('pxgrid:config');
     (0, _net.setUtilsLogger)(this.getLogger);
   }

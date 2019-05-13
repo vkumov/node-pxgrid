@@ -45,7 +45,7 @@ class PxConsumer {
 
       if (authz || typeof authz === 'string') {
         let passwd = typeof authz === 'string' ? authz : this.config.password;
-        let b64 = new Buffer(`${this.config.username}:${passwd}`, 'ascii').toString('base64');
+        let b64 = Buffer.from(`${this.config.username}:${passwd}`, 'ascii').toString('base64');
         headers.Authorization = `Basic ${b64}`;
       }
 

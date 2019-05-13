@@ -40,7 +40,15 @@ export class PxConfig {
 
         this.debugs = (options.debugs || process.env.DEBUG || '').split(',');
         this.loggers = [];
-        this.transports = options.transports || transports;
+        if (options.defaultTransport) {
+            if (options.transports) { 
+                this.transports = [...options.transports, ...transports];
+            } else {
+                this.transports = options.transports || transports;
+            }
+        } else {
+            this.transports = options.transports || transports;
+        }
 
         this.logger = this.getLogger('pxgrid:config');
         setUtilsLogger(this.getLogger);
