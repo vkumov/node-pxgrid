@@ -129,7 +129,6 @@ class PxConfig {
         component,
         logger: winston.loggers.get(component)
       });
-      console.log(winston.loggers.get(component));
       return this.loggers[this.loggers.length - 1].logger;
     });
 

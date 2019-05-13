@@ -154,7 +154,8 @@ export class PxConfig {
     }
 
     _addLogger = (component) => {
-        winston.loggers.add(component, {
+        const debug = this._isDebug(component);
+        const loggerOptions = {
             format: format.combine(
                 format.label({
                     label: component
@@ -163,7 +164,14 @@ export class PxConfig {
             ),
             level: this._isDebug(component) ? 'debug' : 'info',
             transports: this.transports,
-        });
+        };
+
+        if (debug) {
+            // Overwrite level if component should be at debug level
+            loggerOptions.transports = this.transports.map(transport => transport.level = 'debug');
+        }
+
+        winston.loggers.add(component, loggerOptions);
 
         this.loggers.push({
             component,

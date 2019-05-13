@@ -174,6 +174,7 @@ class Srv extends _service.PxService {
       }
 
       this.subscribtions[idx].subscription.unsubscribe();
+      this.logger.info(`Unsubscribed from ${topic}`);
     });
 
     _defineProperty(this, "subscribe", async (topic, cb) => {
