@@ -1,5 +1,5 @@
 {
-    "name": "pxgrid-core",
+    "name": "node-pxgrid",
     "version": "0.1.0",
     "private": true,
     "main": "dist/index.js",
