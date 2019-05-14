@@ -1,7 +1,7 @@
 "use strict";
-const tls = require('tls');
-const winston = require('winston');
-const { format } = winston;
+import tls from 'tls';
+import winston, { format } from 'winston';
+import uuid from 'uuid/v4';
 
 import { transports } from './utils/logging';
 import { setUtilsLogger } from './utils/net';
@@ -21,6 +21,7 @@ function matchRule(str, rule) {
 
 export class PxConfig {
     constructor(options = {}) {
+        this.uuid = uuid();
         this.nodename = typeof options.nodename !== 'undefined' ? options.nodename : '';
         this.username = typeof options.username !== 'undefined' ? options.username : this.nodename;
         this.password = typeof options.password !== 'undefined' ? options.password : '';
@@ -171,11 +172,11 @@ export class PxConfig {
             loggerOptions.transports = this.transports.map(transport => transport.level = 'debug');
         }
 
-        winston.loggers.add(component, loggerOptions);
+        winston.loggers.add(`${this.uuid}:${component}`, loggerOptions);
 
         this.loggers.push({
             component,
-            logger: winston.loggers.get(component),
+            logger: winston.loggers.get(`${this.uuid}:${component}`),
         });
 
         return this.loggers[this.loggers.length - 1].logger;

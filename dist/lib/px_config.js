@@ -5,19 +5,22 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.PxConfigError = exports.PxConfig = exports.VERIFY_ALL = exports.VERIFY_CA = exports.VERIFY_NONE = exports.PX_INET6 = exports.PX_INET64 = exports.PX_INET46 = exports.PX_INET4 = void 0;
 
+var _tls = _interopRequireDefault(require("tls"));
+
+var _winston = _interopRequireWildcard(require("winston"));
+
+var _v = _interopRequireDefault(require("uuid/v4"));
+
 var _logging = require("./utils/logging");
 
 var _net = require("./utils/net");
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-const tls = require('tls');
-
-const winston = require('winston');
-
-const {
-  format
-} = winston;
 const PX_INET4 = 1;
 exports.PX_INET4 = PX_INET4;
 const PX_INET46 = 2;
@@ -107,7 +110,7 @@ class PxConfig {
         return undefined;
       }
 
-      return tls.checkServerIdentity(servername, cert);
+      return _tls.default.checkServerIdentity(servername, cert);
     });
 
     _defineProperty(this, "_isDebug", component => {
@@ -118,16 +121,26 @@ class PxConfig {
     });
 
     _defineProperty(this, "_addLogger", component => {
-      winston.loggers.add(component, {
-        format: format.combine(format.label({
+      const debug = this._isDebug(component);
+
+      const loggerOptions = {
+        format: _winston.format.combine(_winston.format.label({
           label: component
-        }), format.json()),
+        }), _winston.format.json()),
         level: this._isDebug(component) ? 'debug' : 'info',
         transports: this.transports
-      });
+      };
+
+      if (debug) {
+        // Overwrite level if component should be at debug level
+        loggerOptions.transports = this.transports.map(transport => transport.level = 'debug');
+      }
+
+      _winston.default.loggers.add(`${this.uuid}:${component}`, loggerOptions);
+
       this.loggers.push({
         component,
-        logger: winston.loggers.get(component)
+        logger: _winston.default.loggers.get(`${this.uuid}:${component}`)
       });
       return this.loggers[this.loggers.length - 1].logger;
     });
@@ -144,6 +157,7 @@ class PxConfig {
       return this._addLogger(component);
     });
 
+    this.uuid = (0, _v.default)();
     this.nodename = typeof _options.nodename !== 'undefined' ? _options.nodename : '';
     this.username = typeof _options.username !== 'undefined' ? _options.username : this.nodename;
     this.password = typeof _options.password !== 'undefined' ? _options.password : '';
