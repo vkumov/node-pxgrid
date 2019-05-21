@@ -1,5 +1,6 @@
 # node-pxgrid
-PxGrid 2.0 library for Node.js
+PxGrid 2.0 library for Node.js  
+Based on https://github.com/cisco-pxgrid/pxgrid-rest-ws/wiki
 
 ### Install
 Install with npm:
