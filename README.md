@@ -33,4 +33,13 @@ const config = {
 };
 
 const consumer = new PxConsumer(new PxConfig.PxConfig(config))
+
+(async function() {
+  try {
+    await consumer.accountCreate();
+    await consumer.accountActivate();
+  } catch (e) {
+    console.log(e)
+  }
+})();
 ```
