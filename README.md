@@ -38,6 +38,16 @@ const consumer = new PxConsumer(new PxConfig.PxConfig(config))
   try {
     await consumer.accountCreate();
     await consumer.accountActivate();
+    
+    await consumer.serviceLookup('com.cisco.ise.session');
+    const serviceHdlr = consumer.services.serviceHandler('com.cisco.ise.session');
+    const destination = await serviceHdlr.findProperty('sessionTopic');
+    const pubSubService = await serviceHdlr.findProperty('wsPubsubService');
+    const pubSubHandler = consumer.services.serviceHandler(pubSubService[0]);
+    
+    await pubSubHandler.subscribe(destination[0], (message) => {
+        console.log(message)
+    });
   } catch (e) {
     console.log(e)
   }
