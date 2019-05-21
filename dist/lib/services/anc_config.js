@@ -60,7 +60,7 @@ class Srv extends _service.PxService {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "Policy name must be specified for getPolicyByName");
       }
 
-      payload = {
+      const payload = {
         "name": name
       };
       return this._generalCall('getPolicyByName', payload, node);
@@ -80,7 +80,7 @@ class Srv extends _service.PxService {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "Policy name must be specified for deletePolicyByName");
       }
 
-      payload = {
+      const payload = {
         "name": name
       };
       return this._generalCall('getPolicyByName', payload, node);
@@ -96,7 +96,7 @@ class Srv extends _service.PxService {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "MAC Address must be specified for getEndpointByMacAddress");
       }
 
-      payload = {
+      const payload = {
         "macAddress": mac
       };
       return this._generalCall('getEndpointByMacAddress', payload, node);
@@ -111,7 +111,7 @@ class Srv extends _service.PxService {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "Policy name must be specified for applyEndpointByIpAddress");
       }
 
-      payload = {
+      const payload = {
         "policyName": policy,
         "ipAddress": ip
       };
@@ -127,7 +127,7 @@ class Srv extends _service.PxService {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "Policy name must be specified for applyEndpointByMacAddress");
       }
 
-      payload = {
+      const payload = {
         "policyName": policy,
         "macAddress": mac
       };
@@ -143,7 +143,7 @@ class Srv extends _service.PxService {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "Policy name must be specified for clearEndpointByIpAddress");
       }
 
-      payload = {
+      const payload = {
         "policyName": policy,
         "ipAddress": ip
       };
@@ -159,7 +159,7 @@ class Srv extends _service.PxService {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "Policy name must be specified for clearEndpointByMacAddress");
       }
 
-      payload = {
+      const payload = {
         "policyName": policy,
         "macAddress": mac
       };
@@ -171,7 +171,7 @@ class Srv extends _service.PxService {
         throw new _service.ServiceError("INCORRECT_PARAMETERS", "Operation ID must be specified for getOperationStatus");
       }
 
-      payload = {
+      const payload = {
         "operationId": id
       };
       return this._generalCall('getOperationStatus', payload, node);
