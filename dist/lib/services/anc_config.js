@@ -22,7 +22,7 @@ class Srv extends _service.PxService {
         params: ['Name', 'NODE']
       }, {
         call: 'createPolicy',
-        params: ['Policy', 'NODE']
+        params: ['Name', 'Actions:anyOf:QUARANTINE,SHUT_DOWN,PORT_BOUNCE', 'NODE']
       }, {
         call: 'deletePolicyByName',
         params: ['Name', 'NODE']
@@ -61,16 +61,24 @@ class Srv extends _service.PxService {
       }
 
       const payload = {
-        "name": name
+        name
       };
       return this._generalCall('getPolicyByName', payload, node);
     });
 
-    _defineProperty(this, "createPolicy", (policy, node = -1) => {
-      if (!policy) {
-        throw new _service.ServiceError("INCORRECT_PARAMETERS", "Policy object must be specified for createPolicy");
-      } // TODO: add additional checks
+    _defineProperty(this, "createPolicy", (name, actions, node = -1) => {
+      if (!name) {
+        throw new _service.ServiceError("INCORRECT_PARAMETERS", "Policy name must be specified for createPolicy");
+      }
 
+      if (!actions) {
+        throw new _service.ServiceError("INCORRECT_PARAMETERS", "Policy actions must be specified for createPolicy");
+      }
+
+      const policy = {
+        name,
+        actions
+      }; // TODO: add additional checks
 
       return this._generalCall('createPolicy', policy, node);
     });
@@ -81,7 +89,7 @@ class Srv extends _service.PxService {
       }
 
       const payload = {
-        "name": name
+        name
       };
       return this._generalCall('getPolicyByName', payload, node);
     });
