@@ -48,7 +48,6 @@ export default class Srv extends PxService {
             throw new ServiceError("INCORRECT_PARAMETERS", "Policy actions must be specified for createPolicy");
         }
         const policy = { name, actions };
-        // TODO: add additional checks
         return this._generalCall('createPolicy', policy, node);
     }
 
