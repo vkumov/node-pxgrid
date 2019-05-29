@@ -11,7 +11,7 @@ export default class Srv extends PxService {
         return [
             { call: 'getPolicies',        params: ['NODE'] },
             { call: 'getPolicyByName',    params: ['Name', 'NODE'] },
-            { call: 'createPolicy',       params: ['Policy', 'NODE'] },
+            { call: 'createPolicy',       params: ['Name', 'Actions:anyOf:QUARANTINE,SHUT_DOWN,PORT_BOUNCE', 'NODE'] },
             { call: 'deletePolicyByName', params: ['Name', 'NODE'] },
             { call: 'getEndpoints',       params: ['NODE'] },
             { call: 'getEndpointByMac',   params: ['MAC', 'NODE'] },
@@ -36,16 +36,18 @@ export default class Srv extends PxService {
         if (!name) {
             throw new ServiceError("INCORRECT_PARAMETERS", "Policy name must be specified for getPolicyByName");
         }
-        const payload = {
-            "name": name,
-        };
+        const payload = { name };
         return this._generalCall('getPolicyByName', payload, node);
     }
 
-    createPolicy = (policy, node = -1) => {
-        if (!policy) {
-            throw new ServiceError("INCORRECT_PARAMETERS", "Policy object must be specified for createPolicy");
+    createPolicy = (name, actions, node = -1) => {
+        if (!name) {
+            throw new ServiceError("INCORRECT_PARAMETERS", "Policy name must be specified for createPolicy");
         }
+        if (!actions) {
+            throw new ServiceError("INCORRECT_PARAMETERS", "Policy actions must be specified for createPolicy");
+        }
+        const policy = { name, actions };
         // TODO: add additional checks
         return this._generalCall('createPolicy', policy, node);
     }
@@ -54,9 +56,7 @@ export default class Srv extends PxService {
         if (!name) {
             throw new ServiceError("INCORRECT_PARAMETERS", "Policy name must be specified for deletePolicyByName");
         }
-        const payload = {
-            "name": name,
-        };
+        const payload = { name };
         return this._generalCall('getPolicyByName', payload, node);
     }
 
