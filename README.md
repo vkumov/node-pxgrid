@@ -1,6 +1,15 @@
 # node-pxgrid
-PxGrid 2.0 library for Node.js  
+Pure JavaScript implementation of pxGrid 2.0 for Node.js
+
+This module was created to abstract the REST APIs and WebSockets messaging away from handling a pxGrid session in Node.js. Event management, REST calls, STOMP messaging is taken care of by the module and exposes core functions via requests and callbacks.
+
 Based on https://github.com/cisco-pxgrid/pxgrid-rest-ws/wiki
+
+Developed/tested against Cisco ISE 2.4 and Cisco ISE 2.6.
+
+#### Status
+At the moment this library fully covers only consumer capabilities of pxGrid 2.0.
+It doesn't cover provider capabilities yet.
 
 ### Install
 Install with npm:
