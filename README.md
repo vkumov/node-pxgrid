@@ -54,3 +54,8 @@ const consumer = new PxConsumer(new PxConfig.PxConfig(config))
   }
 })();
 ```
+
+### Getting help
+If you have questions, concerns, bug reports, etc., please file an issue in this repository's [Issue Tracker](https://github.com/vkumov/node-pxgrid/issues).
+
+Or contact me directly via email: vitaly.kumov@gmail.com
