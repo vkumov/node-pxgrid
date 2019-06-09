@@ -78,8 +78,7 @@ class Srv extends _service.PxService {
       const policy = {
         name,
         actions
-      }; // TODO: add additional checks
-
+      };
       return this._generalCall('createPolicy', policy, node);
     });
 
