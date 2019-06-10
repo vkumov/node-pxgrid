@@ -1,4 +1,7 @@
 # node-pxgrid
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/vkumov/node-pxgrid/blob/master/LICENSE)
+[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/vkumov/node-pxgrid)
+
 Pure JavaScript implementation of pxGrid 2.0 for Node.js
 
 This module was created to abstract the REST APIs and WebSockets messaging away from handling a pxGrid session in Node.js. Event management, REST calls, STOMP messaging is taken care of by the module and exposes core functions via requests and callbacks.
